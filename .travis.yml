@@ -1,0 +1,15 @@
+language: python
+services:
+  - elasticsearch
+python:
+  - 2.7
+env:
+  - DJANGO=1.9
+install:
+  - pip install -U setuptools
+  - python bootstrap.py
+  - ./bin/buildout versions:django=$DJANGO
+before_script:
+  - sleep 10
+script:
+  - ./bin/test

@@ -1,0 +1,14 @@
+*.pyc
+*~
+.installed.cfg
+bin/
+develop-eggs/
+eggs/
+logs/
+node_modules/
+parts/
+skwaad/assets/
+skwaad/media/
+skwaad/skwaad/default.db
+ve_skwaad/
+nose_trampoline.egg-info/
