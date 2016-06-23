@@ -5,8 +5,11 @@ from django.core.management import call_command
 
 from elasticsearch_dsl import Index
 
+from trampoline import get_trampoline_config
 from trampoline.tests.app.models import Token
 from trampoline.tests.base import BaseTestCase
+
+trampoline_config = get_trampoline_config()
 
 
 class TestCommands(BaseTestCase):
@@ -163,7 +166,7 @@ class TestCommands(BaseTestCase):
                 no_verification=True
             )
 
-        self.connection.indices.put_alias(
+        self.trampoline_config.connection.indices.put_alias(
             index='foobar_target', name='foobar')
         self.assertAliasExists(index='foobar_target', name='foobar')
 

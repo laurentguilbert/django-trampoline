@@ -2,43 +2,33 @@
 Base test case for trampoline.
 """
 from django.test import TransactionTestCase
-from django.test.utils import override_settings
 
-from elasticsearch_dsl.connections import connections
-
-
-TRAMPOLINE = {
-    'INDICES': {
-        'foobar': {
-            'models': ('trampoline.tests.app.models.Token',)
-        },
-    }
-}
+from trampoline import get_trampoline_config
 
 
-@override_settings(TRAMPOLINE=TRAMPOLINE)
 class BaseTestCase(TransactionTestCase):
-    connection = connections.get_connection()
+    trampoline_config = get_trampoline_config()
 
     def refresh(self):
-        self.connection.indices.refresh('_all')
+        self.trampoline_config.connection.indices.refresh('_all')
 
     def docExists(self, obj, obj_id):
         doc_type = obj.get_es_doc_type()
         doc_type_name = doc_type._doc_type.name
         index_name = doc_type._doc_type.index
         obj_id = obj_id or obj.pk
-        return self.connection.exists(
+        return self.trampoline_config.connection.exists(
             index=index_name, doc_type=doc_type_name, id=obj_id)
 
     def aliasExists(self, index, name):
-        return self.connection.indices.exists_alias(index=index, name=name)
+        return self.trampoline_config.connection.indices.exists_alias(
+            index=index, name=name)
 
     def indexExists(self, index):
-        return self.connection.indices.exists(index=index)
+        return self.trampoline_config.connection.indices.exists(index=index)
 
     def typeExists(self, index, doc_type_name):
-        return self.connection.indices.exists_type(
+        return self.trampoline_config.connection.indices.exists_type(
             index=index, doc_type=doc_type_name)
 
     def assertAliasExists(self, index, name):
