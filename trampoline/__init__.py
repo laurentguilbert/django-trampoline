@@ -11,4 +11,6 @@ except ImportError:
     from trampoline.apps import TrampolineConfig
     app_config = TrampolineConfig()
     app_config.ready()
-    get_trampoline_config = lambda: app_config
+
+    def get_trampoline_config():
+        return app_config

@@ -10,6 +10,7 @@ install:
   - python bootstrap.py
   - ./bin/buildout versions:django=$DJANGO
 before_script:
+  - ./bin/flake8 trampoline
   - sleep 10
 script:
   - ./bin/test
