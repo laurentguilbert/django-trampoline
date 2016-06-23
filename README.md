@@ -8,36 +8,25 @@ It was designed to allow re-indexing of your documents without any downtime by u
 
 ## Settings
 
-Start by adding `trampoline` to your `INSTALLED_APPS`.
+Add `trampoline` to your `INSTALLED_APPS`.
 
-Setup the connection with your Elasticsearch instance:
+Define the setting:
 ```python
-from elasticsearch_dsl.connections import connections
-connections.configure(default={'hosts': 'localhost'})
-```
-
-Define your indices:
-```python
-ES_SETTINGS = {
-    'indices': {
-        'index_name': {
-            'models': (
-                'app_name.models.ModelName',
-            ),
-        }
+TRAMPOLINE = {
+  'HOST': 'localhost',
+  'INDICES': {
+    'index_name': {
+      'models': (
+        'app_name.models.ModelName',
+      ),
     }
+  },
 }
 ```
-
-Use `ES_AUTO_INDEX = False` to disable automatic indexing on `save()` and `delete()`. This can be useful for testing.
 
 ## ESIndexableMixin
 
 In order to make your model indexable you must make it inherit from `ESIndexableMixin` and implement a few things.
-
-> Make sure the index name inside your `DocType` model `Meta` class is the same as the one defined in `ES_SETTINGS`.
-
-> Be aware of your MRO since `ESIndexableMixin` overrides `save()` and `delete()`.
 
 #### es_doc_type (required)
 
