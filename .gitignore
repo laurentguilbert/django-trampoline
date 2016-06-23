@@ -11,4 +11,5 @@ skwaad/assets/
 skwaad/media/
 skwaad/skwaad/default.db
 ve_skwaad/
+django_trampoline.egg-info/
 nose_trampoline.egg-info/
