@@ -1,5 +1,7 @@
 # Trampoline
 
+[![Build Status](https://travis-ci.org/laurentguilbert/django-trampoline.svg?branch=develop)](https://travis-ci.org/laurentguilbert/django-trampoline)
+
 Trampoline provides you with tools to easily setup, manage and index your Django models in Elasticsearch. It uses **celery** and is heavily reliant on **elasticsearch_dsl**.
 
 It was designed to allow re-indexing of your documents without any downtime by using intermediary indices along with aliases.
