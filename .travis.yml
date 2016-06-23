@@ -1,16 +1,15 @@
 language: python
-services:
-  - elasticsearch
 python:
   - 2.7
 env:
   - DJANGO=1.9
+before_install:
+  - curl -O https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-2.3.3.deb && sudo dpkg -i --force-confnew elasticsearch-2.3.3.deb && sudo service elasticsearch restart
 install:
   - pip install -U setuptools
   - python bootstrap.py
   - ./bin/buildout versions:django=$DJANGO
 before_script:
-  - cat /etc/elasticsearch/elasticsearch.yml
   - ./bin/flake8 trampoline
   - sleep 10
 script:
