@@ -166,7 +166,7 @@ class TestCommands(BaseTestCase):
                 no_verification=True
             )
 
-        self.trampoline_config.connection.indices.put_alias(
+        trampoline_config.connection.indices.put_alias(
             index='foobar_target', name='foobar')
         self.assertAliasExists(index='foobar_target', name='foobar')
 
