@@ -1,10 +1,10 @@
 """
-Models for test app.
+Models for trampoline tests.
 """
 from django.db import models
 
+from tests.doc_types import TokenDoc
 from trampoline.mixins import ESIndexableMixin
-from trampoline.tests.app.doc_types import TokenDoc
 
 
 class Token(ESIndexableMixin, models.Model):

@@ -12,7 +12,7 @@ DATABASES = {
 INSTALLED_APPS = (
     'django.contrib.contenttypes',
     'trampoline',
-    'trampoline.tests.app',
+    'tests',
 )
 
 SECRET_KEY = 'secret-key'
@@ -24,7 +24,7 @@ SECRET_KEY = 'secret-key'
 TRAMPOLINE = {
     'INDICES': {
         'foobar': {
-            'models': ('trampoline.tests.app.models.Token',)
+            'models': ('tests.models.Token',)
         },
     }
 }

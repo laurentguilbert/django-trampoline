@@ -1,5 +1,5 @@
 """
-Doc types for test app.
+Doc types for trampoline tests.
 """
 from elasticsearch_dsl import DocType
 from elasticsearch_dsl import String

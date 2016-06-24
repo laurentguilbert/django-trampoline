@@ -2,6 +2,8 @@
 Init for trampoline.
 """
 try:
+    # Try to import AppConfig to check if this feature is available.
+    from django.apps import AppConfig  # noqa
     default_app_config = 'trampoline.apps.TrampolineConfig'
 
     def get_trampoline_config():

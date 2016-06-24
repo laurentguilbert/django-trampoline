@@ -5,8 +5,8 @@ from django.test.utils import override_settings
 
 from elasticsearch_dsl import Index
 
-from trampoline.tests.app.models import Token
-from trampoline.tests.base import BaseTestCase
+from tests.base import BaseTestCase
+from tests.models import Token
 
 
 class TestMixins(BaseTestCase):

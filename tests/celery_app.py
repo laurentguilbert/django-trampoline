@@ -1,5 +1,5 @@
 """
-Test celery app for trampoline.
+Celery app for trampoline tests.
 """
 from celery import Celery
 

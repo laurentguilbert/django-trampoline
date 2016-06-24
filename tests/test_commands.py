@@ -5,9 +5,9 @@ from django.core.management import call_command
 
 from elasticsearch_dsl import Index
 
+from tests.base import BaseTestCase
+from tests.models import Token
 from trampoline import get_trampoline_config
-from trampoline.tests.app.models import Token
-from trampoline.tests.base import BaseTestCase
 
 trampoline_config = get_trampoline_config()
 
