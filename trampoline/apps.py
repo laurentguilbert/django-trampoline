@@ -1,9 +1,10 @@
 """
 App config for trampoline.
 """
+from copy import deepcopy
 import collections
 
-from copy import deepcopy
+import six
 
 from django.conf import settings
 from django.db import transaction
@@ -29,7 +30,7 @@ DEFAULT_TRAMPOLINE = {
 
 
 def recursive_update(d, u):
-    for k, v in u.iteritems():
+    for k, v in six.iteritems(u):
         if isinstance(v, collections.Mapping):
             r = recursive_update(d.get(k, {}), v)
             d[k] = r
