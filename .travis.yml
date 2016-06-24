@@ -1,9 +1,14 @@
 language: python
 python:
   - "2.7"
+  - "3.5"
 env:
   - DJANGO_VERSION="1.4"
   - DJANGO_VERSION="1.9"
+matrix:
+  exclude:
+    - python: "3.5"
+      env: DJANGO_VERSION="1.4"
 before_install:
   - wget https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-2.3.3.deb
   - sudo dpkg -i --force-confnew elasticsearch-2.3.3.deb

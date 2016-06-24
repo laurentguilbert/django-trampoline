@@ -95,7 +95,10 @@ class ESBaseCommand(BaseCommand):
     def verification(self, message):
         message += u" [Y/n]"
         self.print_warning(message)
-        choice = raw_input()
+        try:
+            choice = raw_input()
+        except NameError:
+            choice = input()
         if choice != 'Y':
             self.print_error("Operation canceled.")
             sys.exit(1)
