@@ -2,10 +2,11 @@
 Base management command for trampoline.
 """
 from __future__ import print_function
-
+from optparse import make_option
 import sys
 import traceback
-from optparse import make_option
+
+import six
 
 from django.core.management.base import BaseCommand
 
@@ -71,7 +72,7 @@ class ESBaseCommand(BaseCommand):
                     required_option))
                 sys.exit(1)
 
-        for key, value in options.iteritems():
+        for key, value in six.iteritems(options):
             setattr(self, key, value)
 
         try:
