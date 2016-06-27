@@ -4,17 +4,17 @@ Setup for trampoline.
 from setuptools import find_packages
 from setuptools import setup
 
-import trampoline
+exec(open('trampoline/version.py').read())
 
 setup(
     name='django-trampoline',
-    version=trampoline.__version__,
+    version=__version__,  # noqa
     keywords='django, elasticsearch',
-    author=trampoline.__author__,
-    author_email=trampoline.__email__,
-    url=trampoline.__url__,
+    author='Laurent Guilbert',
+    author_email='laurent@guilbert.me',
+    url='https://github.com/laurentguilbert/django-trampoline',
     description="No-frills Elasticsearch's wrapper for your Django project.",
-    license=trampoline.__license__,
+    license='MIT License',
     classifiers=(
         'Framework :: Django',
         'Environment :: Web Environment',
