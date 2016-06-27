@@ -3,8 +3,6 @@ Mixins for trampoline.
 """
 from django.contrib.contenttypes.models import ContentType
 
-from elasticsearch.exceptions import NotFoundError
-
 from trampoline import get_trampoline_config
 from trampoline.tasks import es_delete_doc
 from trampoline.tasks import es_index_object
