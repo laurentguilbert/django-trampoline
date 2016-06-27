@@ -1,6 +1,12 @@
 """
 Init for trampoline.
 """
+__version__ = '1.0'
+__license__ = 'MIT License'
+__author__ = 'Laurent Guilbert'
+__email__ = 'laurent@guilbert.me'
+__url__ = 'https://github.com/laurentguilbert/django-trampoline'
+
 try:
     # Try to import AppConfig to check if this feature is available.
     from django.apps import AppConfig  # noqa
