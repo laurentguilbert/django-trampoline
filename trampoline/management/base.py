@@ -45,9 +45,9 @@ class ESBaseCommand(BaseCommand):
             )
         ),
         make_option(
-            '--no-verification',
+            '--yes',
             action='store_true',
-            dest='no_verification',
+            dest='yes',
             default=False,
             help="Bypass the command line's verification."
         ),
@@ -61,8 +61,7 @@ class ESBaseCommand(BaseCommand):
         except Exception as exc:
             if options.get('traceback', False):
                 traceback.print_exc()
-            else:
-                self.print_error(repr(exc))
+            self.print_error(repr(exc))
             sys.exit(1)
 
     def parse_options(self, **options):
@@ -93,7 +92,9 @@ class ESBaseCommand(BaseCommand):
     UNDERLINE = '\033[4m'
     RESET = '\033[0m'
 
-    def verification(self, message):
+    def confirm(self, message):  # pragma: no cover
+        if self.yes:
+            return True
         message += u" [Y/n]"
         self.print_warning(message)
         try:
@@ -122,5 +123,5 @@ class ESBaseCommand(BaseCommand):
             file=sys.stderr
         )
 
-    def print_warning(self, message):
+    def print_warning(self, message):  # pragma: no cover
         print(u"{0}{1}{2}".format(self.YELLOW, message, self.RESET))

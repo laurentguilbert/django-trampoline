@@ -16,11 +16,10 @@ class Command(ESBaseCommand):
     required_options = ('index_name', 'target_name')
 
     def run(self, *args, **options):
-        if not self.no_verification:
-            self.verification(
-                u"Are you really sure you want to delete the alias '{0}' ?"
-                .format(self.index_name)
-            )
+        self.confirm(
+            u"Are you really sure you want to delete the alias '{0}' ?"
+            .format(self.index_name)
+        )
         if not self.dry_run:
             self.trampoline_config.connection.indices.delete_alias(
                 index=self.target_name,

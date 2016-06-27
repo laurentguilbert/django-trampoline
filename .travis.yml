@@ -22,5 +22,7 @@ before_script:
   - sleep 10
 script:
   - ./bin/test
+after_success:
+  - ./bin/coveralls
 notifications:
   email: false

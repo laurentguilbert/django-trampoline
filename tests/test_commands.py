@@ -25,6 +25,10 @@ class TestCommands(BaseTestCase):
         with self.assertRaises(SystemExit):
             call_command('es_create_index')
 
+        # Index name isn't defined.
+        with self.assertRaises(SystemExit):
+            call_command('es_create_index', index_name='doesntexist')
+
         # Dry run.
         call_command(
             'es_create_index',
@@ -42,15 +46,17 @@ class TestCommands(BaseTestCase):
         )
         self.assertIndexExists('foobar_target')
         self.assertTypeExists(index='foobar_target', doc_type='token')
-
         self.assertIndexDoesntExist('foobar')
 
         # Index already exists.
+        # If verbosity is not an int it defaults to 1.
         with self.assertRaises(SystemExit):
             call_command(
                 'es_create_index',
                 index_name='foobar',
-                target_name='foobar_target'
+                target_name='foobar_target',
+                traceback=True,
+                verbosity='notint'
             )
 
     def test_es_delete_index(self):
@@ -63,7 +69,7 @@ class TestCommands(BaseTestCase):
             call_command(
                 'es_delete_index',
                 index_name='foobar',
-                no_verification=True
+                yes=True
             )
 
         index = Index('foobar')
@@ -74,7 +80,7 @@ class TestCommands(BaseTestCase):
         call_command(
             'es_delete_index',
             index_name='foobar',
-            no_verification=True
+            yes=True
         )
         self.assertIndexDoesntExist('foobar')
 
@@ -150,7 +156,7 @@ class TestCommands(BaseTestCase):
                 'es_delete_alias',
                 index_name='foobar',
                 target_name='foobar_target',
-                no_verification=True
+                yes=True
             )
 
         index = Index('foobar_target')
@@ -163,7 +169,7 @@ class TestCommands(BaseTestCase):
                 'es_delete_alias',
                 index_name='foobar',
                 target_name='foobar_target',
-                no_verification=True
+                yes=True
             )
 
         trampoline_config.connection.indices.put_alias(
@@ -174,7 +180,7 @@ class TestCommands(BaseTestCase):
             'es_delete_alias',
             index_name='foobar',
             target_name='foobar_target',
-            no_verification=True
+            yes=True
         )
         self.assertAliasDoesntExist(index='foobar_target', name='foobar')
 

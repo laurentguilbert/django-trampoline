@@ -5,6 +5,8 @@ from django.test.utils import override_settings
 
 from elasticsearch_dsl import Index
 
+from trampoline.mixins import ESIndexableMixin
+
 from tests.base import BaseTestCase
 from tests.models import Token
 
@@ -23,7 +25,48 @@ class TestMixins(BaseTestCase):
         super(TestMixins, self).tearDown()
         self.index.delete()
 
+    def test_is_indexable(self):
+        self.assertTrue(ESIndexableMixin().is_indexable())
+
+    def test_get_indexable_queryset(self):
+        self.assertQuerysetEqual(
+            Token.get_indexable_queryset(),
+            Token.objects.all()
+        )
+
+    def test_get_es_doc(self):
+        token = Token(name='token')
+        self.assertIsNone(token.get_es_doc())
+        token.save()
+        self.assertIsNotNone(token.get_es_doc())
+
     def test_es_index(self):
+        # Asynchronous call.
+        token = Token.objects.create(name='not_indexable')
+        self.assertDocDoesntExist(token)
+        token.es_index()
+        self.assertDocExists(token)
+
+        # Synchronous call.
+        token = Token.objects.create(name='not_indexable')
+        self.assertDocDoesntExist(token)
+        token.es_index(async=False)
+        self.assertDocExists(token)
+
+    def test_es_delete(self):
+        # Asynchronous call.
+        token = Token.objects.create(name='token')
+        self.assertDocExists(token)
+        token.es_delete()
+        self.assertDocDoesntExist(Token, token.pk)
+
+        # Synchronous call.
+        token = Token.objects.create(name='token')
+        self.assertDocExists(token)
+        token.es_delete(async=False)
+        self.assertDocDoesntExist(Token, token.pk)
+
+    def test_save(self):
         token = Token(name='token')
 
         with override_settings(TRAMPOLINE={'OPTIONS': {'disabled': True}}):
@@ -41,7 +84,11 @@ class TestMixins(BaseTestCase):
         doc = token.get_es_doc()
         self.assertEqual(doc.name, 'kento')
 
-    def test_es_delete(self):
+        # Instance is not indexable.
+        token = Token.objects.create(name='not_indexable')
+        self.assertDocDoesntExist(token)
+
+    def test_delete(self):
         token = Token.objects.create(name='token')
         token_id = token.pk
         self.assertDocExists(token)

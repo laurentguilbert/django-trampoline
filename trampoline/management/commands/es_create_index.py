@@ -2,6 +2,7 @@
 Management command for trampoline.
 """
 import calendar
+import sys
 import time
 
 from elasticsearch_dsl import Index
@@ -31,6 +32,13 @@ class Command(ESBaseCommand):
 
         index = Index(self.target_name)
         models = self.trampoline_config.get_index_models(self.index_name)
+
+        if len(models) == 0:
+            self.print_error(
+                u"No models defined for index '{0}'."
+                .format(self.index_name)
+            )
+            sys.exit(1)
 
         for model in models:
             doc_type = model.get_es_doc_type()

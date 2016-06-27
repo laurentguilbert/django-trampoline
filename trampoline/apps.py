@@ -24,7 +24,6 @@ DEFAULT_TRAMPOLINE = {
     'INDICES': {},
     'OPTIONS': {
         'disabled': False,
-        'test_prefix': "test_",
     },
 }
 
@@ -108,10 +107,6 @@ class TrampolineConfig(AppConfig):
     @property
     def indices(self):
         return self.settings['INDICES']
-
-    @property
-    def test_prefix(self):
-        return self.settings['OPTIONS']['test_prefix']
 
     @property
     def is_disabled(self):

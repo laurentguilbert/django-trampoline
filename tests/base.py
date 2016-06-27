@@ -19,7 +19,10 @@ class BaseTestCase(TransactionTestCase):
         index_name = doc_type._doc_type.index
         obj_id = obj_id or obj.pk
         return trampoline_config.connection.exists(
-            index=index_name, doc_type=doc_type_name, id=obj_id)
+            index=index_name,
+            doc_type=doc_type_name,
+            id=obj_id,
+        )
 
     def aliasExists(self, index, name):
         return trampoline_config.connection.indices.exists_alias(

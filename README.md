@@ -86,7 +86,7 @@ Delete an index along with all the documents in it.
 
 Arguments:
 - **index**: Name of the index.
-- **--no-verification** *(optional)*:  Bypass the command line's verification.
+- **--yes** *(optional)*:  Bypass the command line's verification.
 
 ### es_create_alias
 
@@ -103,7 +103,7 @@ Delete an alias from one index name to the other.
 Arguments:
 - **--index**: Name of the index as defined in the settings.
 - **--target**: Name of the actual index.
-- **--no-verification** *(optional)*:  Bypass the command line's verification.
+- **--yes** *(optional)*:  Bypass the command line's verification.
 
 ### es_create_documents
 

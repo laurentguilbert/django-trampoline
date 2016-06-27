@@ -18,11 +18,10 @@ class Command(ESBaseCommand):
     required_options = ('index_name',)
 
     def run(self, *args, **options):
-        if not self.no_verification:
-            self.verification(
-                u"Are you really sure you want to delete the index '{0}' ?"
-                .format(self.index_name)
-            )
+        self.confirm(
+            u"Are you really sure you want to delete the index '{0}' ?"
+            .format(self.index_name)
+        )
         index = Index(self.index_name)
         if not self.dry_run:
             index.delete()

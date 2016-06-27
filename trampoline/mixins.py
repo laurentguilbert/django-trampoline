@@ -19,11 +19,11 @@ class ESIndexableMixin(object):
     es_doc_type = None
 
     @classmethod
-    def get_indexable_queryset(cls):
+    def get_indexable_queryset(cls):  # pragma: no cover
         return cls.objects.all()
 
     @classmethod
-    def get_es_doc_type(cls):
+    def get_es_doc_type(cls):  # pragma: no cover
         return cls.es_doc_type
 
     def is_indexable(self):
@@ -35,14 +35,9 @@ class ESIndexableMixin(object):
     def get_es_doc(self):
         if not self.pk:
             return None
-
         doc_type = self.get_es_doc_type()
         index_name = doc_type._doc_type.index
-
-        try:
-            doc = doc_type.get(index=index_name, id=self.pk, ignore=404)
-        except NotFoundError:
-            doc = None
+        doc = doc_type.get(index=index_name, id=self.pk, ignore=404)
         return doc
 
     def es_index(self, async=True, countdown=0, index_name=None):
