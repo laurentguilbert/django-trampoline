@@ -1,3 +1,5 @@
+[run]
+source          = trampoline
 [report]
 exclude_lines   =
   pragma: no cover
