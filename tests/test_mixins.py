@@ -29,9 +29,9 @@ class TestMixins(BaseTestCase):
         self.assertTrue(ESIndexableMixin().is_indexable())
 
     def test_get_indexable_queryset(self):
-        self.assertQuerysetEqual(
-            Token.get_indexable_queryset(),
-            Token.objects.all()
+        self.assertEqual(
+            str(Token.get_indexable_queryset().query),
+            str(Token.objects.all().query)
         )
 
     def test_get_es_doc(self):
