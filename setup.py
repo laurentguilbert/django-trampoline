@@ -24,6 +24,7 @@ setup(
         'Operating System :: OS Independent',
         'Topic :: Software Development :: Libraries :: Python Modules',
     ),
+
     zip_safe=False,
     include_package_data=True,
     packages=find_packages(),
@@ -31,5 +32,11 @@ setup(
         'celery',
         'elasticsearch_dsl>=2.0.0,<3.0.0',
         'six',
-    )
+    ),
+
+    entry_points={
+        'nose.plugins': (
+            'trampoline_setup = nose_plugins:TrampolineSetup',
+        )
+    },
 )
