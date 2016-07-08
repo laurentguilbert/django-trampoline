@@ -20,8 +20,6 @@ class Page(object):
         self.number = page_number
 
         bottom_offset = self.paginator.page_size * (page_number - 1)
-        if bottom_offset > 0:
-            bottom_offset -= 1
         top_offset = bottom_offset + self.paginator.page_size
         search = self.paginator.search[bottom_offset:top_offset]
         response = search.execute()
@@ -33,6 +31,3 @@ class Page(object):
             self.has_other_pages = True
         else:
             self.has_other_pages = False
-
-    def has_other_pages(self):
-        return self.has_other_pages

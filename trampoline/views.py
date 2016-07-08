@@ -13,10 +13,13 @@ class ESPaginationMixin(object):
         raise NotImplementedError
 
     def get_page_number(self):
+        number = 1
         try:
-            number = int(self.request.GET.get('page', 1))
-        except (TypeError, ValueError):
+            number = int(self.request.GET['page'])
+        except (TypeError, ValueError, AttributeError):
             pass
+        if number < 1:
+            number = 1
         return number
 
     def paginate_search(self):
