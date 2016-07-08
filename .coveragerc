@@ -1,4 +1,6 @@
 [report]
+omit =
+  trampoline/version.py
 exclude_lines =
   pragma: no cover
   raise NotImplementedError

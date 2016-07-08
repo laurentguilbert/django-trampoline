@@ -6,7 +6,7 @@ from elasticsearch_dsl import String
 
 
 class TokenDoc(DocType):
-    name = String()
+    name = String(index='not_analyzed')
 
     class Meta:
         index = 'foobar'

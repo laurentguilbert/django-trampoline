@@ -34,6 +34,7 @@ class TestPaginator(BaseTestCase):
             index=Token.es_doc_type._doc_type.index,
             doc_type=Token.es_doc_type._doc_type.name
         )
+        search = search.sort('name')
 
         page_size = 2
         paginator = ESSearchPaginator(search, page_size)
