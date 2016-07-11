@@ -68,6 +68,8 @@ class TestPaginator(BaseTestCase):
 
         self.assertEqual(view.page_size, 2)
 
+        view.request.GET = {}
+        self.assertEqual(view.get_page_number(), 1)
         view.request.GET = {'page': -2}
         self.assertEqual(view.get_page_number(), 1)
         view.request.GET = {'page': 'foobar'}
