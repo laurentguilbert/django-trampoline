@@ -27,11 +27,15 @@ TRAMPOLINE = {
 
 ## ESIndexableMixin
 
+```python
+from trampoline.mixins import ESIndexableMixin
+```
+
 In order to make your model indexable you must make it inherit from `ESIndexableMixin` and implement a few things.
 
 #### es_doc_type (required)
 
-Set the attribute `es_doc_type` with the `DocType` used to serialize your model in Elasticsearch.
+Set the attribute `es_doc_type` with the corresponding `DocType` used to serialize your model.
 
 #### get_es_doc_mapping (required)
 
@@ -115,3 +119,81 @@ Arguments:
 - **--target** *(optional)*: Name of the actual index.
 
 **target** defaults to **index** if not provided.
+
+## Pagination
+
+A `Search` response cannot be as easily paginated as a `QuerySet` due to various constraints.
+
+The best way to paginate a response is to use the custom paginator and view mixin provided with Trampoline.
+
+### ESPaginationMixin
+
+```python
+from trampoline.views import ESPaginationMixin
+```
+
+In order to paginate your view you must make it inherit from `ESPaginationMixin` and implement a few things.
+
+#### page_size (optional)
+
+Set `page_size` to the desired number of results per page (defaults to 10).
+
+#### get_search (required)
+
+```python
+def get_search(self):
+  search = Search()
+  ...
+  return search
+```
+
+Return the `Search` object from which the response must be paginated.
+
+Your view's `context_data` will then contain a `page` object as described bellow.
+
+### Page
+
+```python
+from trampoline.paginator import Page
+```
+
+#### has_other_pages
+
+Whether this is the last page of results or not.
+
+#### hits
+
+Paginated search results.
+
+#### number
+
+Corresponding page number.
+
+#### paginator
+
+Link back to the paginator from which the page is generated.
+
+#### response
+
+Search response.
+
+#### total_count
+
+Total number of results for the search.
+
+### ESSearchPaginator
+
+```python
+from trampoline.paginator import ESSearchPaginator
+```
+
+You can also use the paginator on itself and outside of `ESPaginationMixin` if you ever need it. See the example bellow:
+
+```python
+page_size = 10
+page_number = 2
+search = Search()
+...
+paginator = ESSearchPaginator(search, page_size)
+page = paginator.get_page(page_number)
+```
