@@ -15,8 +15,8 @@ class ESPaginationMixin(object):
     def get_page_number(self):
         number = 1
         try:
-            number = int(self.request.GET['page'])
-        except (TypeError, ValueError, AttributeError):
+            number = int(self.request.GET.get('page'))
+        except (TypeError, ValueError):
             pass
         if number < 1:
             number = 1
