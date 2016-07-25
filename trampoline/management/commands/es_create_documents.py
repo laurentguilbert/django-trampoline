@@ -29,8 +29,10 @@ class Command(ESBaseCommand):
 
         index = Index(self.target_name)
         if not index.exists():
-            self.print_error(u"Index '{0}' does not exist.".format(
-                self.target_name))
+            self.print_error(
+                u"Index '{0}' does not exist."
+                .format(self.target_name)
+            )
             sys.exit(1)
 
         self.print_info(u"Indexing objects on '{0}'.".format(self.target_name))
@@ -60,7 +62,10 @@ class Command(ESBaseCommand):
                                 verbosity=2
                             )
                 else:
-                    self.print_normal("{0}Skipped{1} {2}".format(
-                        self.DIM, self.RESET, obj), verbosity=2)
+                    self.print_normal(
+                        "{0}Skipped{1} {2}"
+                        .format(self.DIM, self.RESET, obj),
+                        verbosity=2
+                    )
 
         self.print_success("Indexation completed.")
