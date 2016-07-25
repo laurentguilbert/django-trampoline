@@ -1,11 +1,15 @@
 """
 Management command for trampoline.
 """
+import logging
 import sys
 
 from elasticsearch_dsl import Index
 
 from trampoline.management.base import ESBaseCommand
+
+
+logger = logging.getLogger(__name__)
 
 
 class Command(ESBaseCommand):
@@ -39,10 +43,22 @@ class Command(ESBaseCommand):
             for obj in queryset:
                 if obj.is_indexable():
                     if not self.dry_run:
-                        obj.es_index(
-                            async=False, index_name=self.target_name)
-                    self.print_normal("{0}Indexed{1} {2}".format(
-                        self.GREEN, self.RESET, obj), verbosity=2)
+                        try:
+                            obj.es_index(
+                                async=False,
+                                index_name=self.target_name
+                            )
+                        except Exception:
+                            logger.exception(
+                                "Exception while indexing object (pk={0})"
+                                .format(obj.pk)
+                            )
+                        else:
+                            self.print_normal(
+                                "{0}Indexed{1} {2} (pk={3})"
+                                .format(self.GREEN, self.RESET, obj, obj.pk),
+                                verbosity=2
+                            )
                 else:
                     self.print_normal("{0}Skipped{1} {2}".format(
                         self.DIM, self.RESET, obj), verbosity=2)
