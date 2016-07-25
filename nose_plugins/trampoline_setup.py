@@ -45,7 +45,7 @@ class TrampolineSetup(Plugin):
             call_command(
                 'es_delete_index',
                 index_name=index_name,
-                no_verification=True,
+                yes=True,
                 verbosity=0
             )
 
