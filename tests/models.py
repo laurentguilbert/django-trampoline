@@ -27,6 +27,6 @@ class Token(ESIndexableMixin, models.Model):
     def get_es_doc_mapping(self):
         doc = TokenDoc()
         doc.name = self.name
-        if doc.name == "raise_exception":
-            raise
+        if doc.name == 'raise_exception':
+            raise RuntimeError
         return doc

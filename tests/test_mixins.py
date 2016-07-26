@@ -62,7 +62,7 @@ class TestMixins(BaseTestCase):
 
         # Hard fail.
         settings.TRAMPOLINE['OPTIONS']['fail_silently'] = False
-        with self.assertRaises(TypeError):
+        with self.assertRaises(RuntimeError):
             token.es_index()
         settings.TRAMPOLINE['OPTIONS']['fail_silently'] = True
 
@@ -89,7 +89,7 @@ class TestMixins(BaseTestCase):
         backup_delete = trampoline_config.connection.delete
 
         def delete_raise_exception(*args, **kwargs):
-            raise
+            raise RuntimeError
         trampoline_config.connection.delete = delete_raise_exception
 
         # Fail silently
@@ -97,7 +97,7 @@ class TestMixins(BaseTestCase):
 
         # Hard fail.
         settings.TRAMPOLINE['OPTIONS']['fail_silently'] = False
-        with self.assertRaises(TypeError):
+        with self.assertRaises(RuntimeError):
             token.es_delete()
         settings.TRAMPOLINE['OPTIONS']['fail_silently'] = True
 
