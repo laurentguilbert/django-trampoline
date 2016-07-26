@@ -1,7 +1,7 @@
 """
 Test mixins for trampoline.
 """
-from django.test.utils import override_settings
+from django.conf import settings
 
 from elasticsearch_dsl import Index
 
@@ -53,6 +53,19 @@ class TestMixins(BaseTestCase):
         token.es_index(async=False)
         self.assertDocExists(token)
 
+        # Fail silently.
+        settings.TRAMPOLINE['OPTIONS']['disabled'] = True
+        token = Token.objects.create(name='raise_exception')
+        settings.TRAMPOLINE['OPTIONS']['disabled'] = False
+        token.es_index()
+        self.assertDocDoesntExist(token)
+
+        # Hard fail.
+        settings.TRAMPOLINE['OPTIONS']['fail_silently'] = False
+        with self.assertRaises(TypeError):
+            token.es_index()
+        settings.TRAMPOLINE['OPTIONS']['fail_silently'] = True
+
     def test_es_delete(self):
         # Asynchronous call.
         token = Token.objects.create(name='token')
@@ -66,12 +79,37 @@ class TestMixins(BaseTestCase):
         token.es_delete(async=False)
         self.assertDocDoesntExist(Token, token.pk)
 
+        # Fail silently if document doesn't exist.
+        token.es_delete()
+
+        from trampoline import get_trampoline_config
+        trampoline_config = get_trampoline_config()
+
+        # Fake delete to raise exception.
+        backup_delete = trampoline_config.connection.delete
+
+        def delete_raise_exception(*args, **kwargs):
+            raise
+        trampoline_config.connection.delete = delete_raise_exception
+
+        # Fail silently
+        token.es_delete()
+
+        # Hard fail.
+        settings.TRAMPOLINE['OPTIONS']['fail_silently'] = False
+        with self.assertRaises(TypeError):
+            token.es_delete()
+        settings.TRAMPOLINE['OPTIONS']['fail_silently'] = True
+
+        trampoline_config.connection.delete = backup_delete
+
     def test_save(self):
         token = Token(name='token')
 
-        with override_settings(TRAMPOLINE={'OPTIONS': {'disabled': True}}):
-            token.save()
-            self.assertDocDoesntExist(token)
+        settings.TRAMPOLINE['OPTIONS']['disabled'] = True
+        token.save()
+        settings.TRAMPOLINE['OPTIONS']['disabled'] = False
+        self.assertDocDoesntExist(token)
 
         token.save()
         doc = token.get_es_doc()
@@ -93,9 +131,10 @@ class TestMixins(BaseTestCase):
         token_id = token.pk
         self.assertDocExists(token)
 
-        with override_settings(TRAMPOLINE={'OPTIONS': {'disabled': True}}):
-            token.delete()
-            self.assertDocExists(Token, token_id)
+        settings.TRAMPOLINE['OPTIONS']['disabled'] = True
+        token.delete()
+        settings.TRAMPOLINE['OPTIONS']['disabled'] = False
+        self.assertDocExists(Token, token_id)
 
         token.save()
         token_id = token.pk

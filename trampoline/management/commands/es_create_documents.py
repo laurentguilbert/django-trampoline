@@ -24,6 +24,10 @@ class Command(ESBaseCommand):
     )
     required_options = ('index_name',)
 
+    STATUS_INDEXED = 0
+    STATUS_SKIPPED = 1
+    STATUS_FAILED = 2
+
     def run(self, *args, **options):
         self.target_name = self.target_name or self.index_name
 
@@ -45,27 +49,45 @@ class Command(ESBaseCommand):
             for obj in queryset:
                 if obj.is_indexable():
                     if not self.dry_run:
-                        try:
-                            obj.es_index(
-                                async=False,
-                                index_name=self.target_name
-                            )
-                        except Exception:
-                            logger.exception(
-                                "Exception while indexing object (pk={0})"
-                                .format(obj.pk)
-                            )
+                        result = obj.es_index(
+                            async=False,
+                            index_name=self.target_name
+                        )
+                        if result.result is None:
+                            status = self.STATUS_FAILED
                         else:
-                            self.print_normal(
-                                "{0}Indexed{1} {2} (pk={3})"
-                                .format(self.GREEN, self.RESET, obj, obj.pk),
-                                verbosity=2
-                            )
+                            status = self.STATUS_INDEXED
+                    else:
+                        status = self.STATUS_INDEXED
                 else:
-                    self.print_normal(
-                        "{0}Skipped{1} {2}"
-                        .format(self.DIM, self.RESET, obj),
-                        verbosity=2
-                    )
+                    status = self.STATUS_SKIPPED
+                self.print_obj_status(obj, model.__name__, status)
 
         self.print_success("Indexation completed.")
+
+    def print_obj_status(self, obj, model_name, status):
+        obj_str = u"{0:<15} {1}".format(model_name, obj.pk)
+        if status == self.STATUS_FAILED:
+            self.print_error("{0:<15} {1}".format("Failed", obj_str))
+        elif status == self.STATUS_SKIPPED:
+            self.print_normal(
+                u"{0}{1:<15}{2} {3}"
+                .format(
+                    self.DIM,
+                    "Skipped",
+                    self.RESET,
+                    obj_str
+                ),
+                verbosity=2
+            )
+        elif status == self.STATUS_INDEXED:
+            self.print_normal(
+                u"{0}{1:<15}{2} {3}"
+                .format(
+                    self.GREEN,
+                    "Indexed",
+                    self.RESET,
+                    obj_str
+                ),
+                verbosity=2
+            )

@@ -19,10 +19,12 @@ try:
 except ImportError:
     AppConfig = object
 
+
 DEFAULT_TRAMPOLINE = {
     'HOST': 'localhost',
     'INDICES': {},
     'OPTIONS': {
+        'fail_silently': True,
         'disabled': False,
     },
 }
@@ -107,6 +109,10 @@ class TrampolineConfig(AppConfig):
     @property
     def indices(self):
         return self.settings['INDICES']
+
+    @property
+    def should_fail_silently(self):
+        return self.settings['OPTIONS']['fail_silently']
 
     @property
     def is_disabled(self):

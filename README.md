@@ -3,7 +3,7 @@
 [![Build Status](https://travis-ci.org/laurentguilbert/django-trampoline.svg?branch=develop)](https://travis-ci.org/laurentguilbert/django-trampoline)
 [![Coverage Status](https://coveralls.io/repos/github/laurentguilbert/django-trampoline/badge.svg?branch=develop)](https://coveralls.io/github/laurentguilbert/django-trampoline?branch=develop)
 
-Trampoline provides you with tools to easily setup, manage and index your Django models in Elasticsearch. It uses **celery** and is heavily reliant on **elasticsearch_dsl**.
+Trampoline provides you with tools to easily setup, manage and index your Django models in ElasticSearch. It uses **celery** and is heavily reliant on **elasticsearch_dsl**.
 
 It was designed to allow re-indexing of your documents without any downtime by using intermediary indices along with aliases.
 
@@ -22,8 +22,36 @@ TRAMPOLINE = {
       ),
     }
   },
+  'OPTIONS': {
+    'fail_silently': True,
+    'disabled': False,
+  },
 }
 ```
+
+### HOST
+
+`localhost` by default.
+
+Address of your ElasticSearch host.
+
+### INDICES
+
+`{}` by default.
+
+Each key inside `INDICES` represents an index which itself defines a list of `models` to be indexed.
+
+### OPTIONS
+
+#### fail_silently
+
+`True` by default.
+
+If `fail_silently` is `True` exceptions raised while indexing are caught and logged without being re-raised.
+
+#### disabled
+
+`False` by default.
 
 ## ESIndexableMixin
 

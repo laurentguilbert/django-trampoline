@@ -1,6 +1,7 @@
 """
 Test management commands for trampoline.
 """
+from django.conf import settings
 from django.core.management import call_command
 
 from elasticsearch_dsl import Index
@@ -209,10 +210,12 @@ class TestCommands(BaseTestCase):
         index.create()
         self.refresh()
 
+        # Disable auto indexing while creating objects.
+        settings.TRAMPOLINE['OPTIONS']['disabled'] = True
         token = Token.objects.create(name="token")
-        token.es_delete()
-
-        token_not_indexable = Token.objects.create(name="not_indexable")
+        token_not_indexable = Token.objects.create(name='not_indexable')
+        token_raise_exception = Token.objects.create(name='raise_exception')
+        settings.TRAMPOLINE['OPTIONS']['disabled'] = False
 
         # Dry run.
         call_command(
@@ -222,10 +225,13 @@ class TestCommands(BaseTestCase):
         )
         self.assertDocDoesntExist(token)
         self.assertDocDoesntExist(token_not_indexable)
+        self.assertDocDoesntExist(token_raise_exception)
 
         call_command(
             'es_create_documents',
-            index_name='foobar'
+            index_name='foobar',
+            verbosity=3
         )
         self.assertDocExists(token)
         self.assertDocDoesntExist(token_not_indexable)
+        self.assertDocDoesntExist(token_raise_exception)
