@@ -1,4 +1,4 @@
-# Trampoline
+![logo_trampoline](https://cloud.githubusercontent.com/assets/1875772/17176077/55087108-540b-11e6-9d93-138526b6673e.png)
 
 [![Build Status](https://travis-ci.org/laurentguilbert/django-trampoline.svg?branch=develop)](https://travis-ci.org/laurentguilbert/django-trampoline)
 [![Coverage Status](https://coveralls.io/repos/github/laurentguilbert/django-trampoline/badge.svg?branch=develop)](https://coveralls.io/github/laurentguilbert/django-trampoline?branch=develop)
