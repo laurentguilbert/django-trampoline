@@ -53,7 +53,7 @@ class Command(ESBaseCommand):
                             async=False,
                             index_name=self.target_name
                         )
-                        if result.result is None:
+                        if result.result is False:
                             status = self.STATUS_FAILED
                         else:
                             status = self.STATUS_INDEXED

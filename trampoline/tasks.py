@@ -28,11 +28,10 @@ def es_index_object(index_name, content_type_id, object_id):
     except:
         if trampoline_config.should_fail_silently:
             logger.exception("Exception occured while indexing object.")
-            return None
+            return False
         else:
             raise
-    else:
-        return doc
+    return True
 
 
 @shared_task
@@ -50,6 +49,7 @@ def es_delete_doc(index_name, doc_type_name, doc_id):
     except:
         if trampoline_config.should_fail_silently:
             logger.exception("Exception occured while deleting document.")
-            return None
+            return False
         else:
             raise
+    return True
