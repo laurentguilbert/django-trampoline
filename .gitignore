@@ -10,7 +10,4 @@ logs/
 node_modules/
 nose_trampoline.egg-info/
 parts/
-skwaad/assets/
-skwaad/media/
-skwaad/skwaad/default.db
-ve_skwaad/
+dist/

@@ -7,6 +7,14 @@ Trampoline provides you with tools to easily setup, manage and index your Django
 
 It was designed to allow re-indexing of your documents without any downtime by using intermediary indices along with aliases.
 
+## Installation
+
+To install the package simply run:
+
+```
+pip install django-trampoline
+```
+
 ## Settings
 
 Add `trampoline` to your `INSTALLED_APPS`.
