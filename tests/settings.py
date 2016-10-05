@@ -39,7 +39,11 @@ SECRET_KEY = 'secret-key'
 TRAMPOLINE = {
     'INDICES': {
         'foobar': {
-            'models': ('tests.models.Token',)
+            'models': [
+                'tests.models.Token',
+                # Make sure only one doc_type is created.
+                'tests.models.Token',
+            ]
         },
     },
     'OPTIONS': {
