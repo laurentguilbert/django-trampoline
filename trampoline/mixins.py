@@ -18,7 +18,7 @@ class ESIndexableMixin(object):
 
     @classmethod
     def get_indexable_queryset(cls):  # pragma: no cover
-        return cls.objects.all()
+        return cls._default_manager.all()
 
     @classmethod
     def get_es_doc_type(cls):  # pragma: no cover
