@@ -28,7 +28,7 @@ class ESIndexableMixin(object):
         return True
 
     def is_index_update_needed(self):
-        """ Allow models to decide whether to update index from post_save signal or not. """
+        """ Allow models to decide whether to update index from post_save """
         return True
 
     def get_es_doc_mapping(self):
