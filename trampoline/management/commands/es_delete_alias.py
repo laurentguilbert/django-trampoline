@@ -21,8 +21,10 @@ class Command(ESBaseCommand):
             u"Are you really sure you want to delete the alias '{0}' ?"
             .format(self.index_name)
         )
+        using = self.using
+
         if not self.dry_run:
-            self.trampoline_config.get_connection(self.using).indices.delete_alias(
+            self.trampoline_config.get_connection(using).indices.delete_alias(
                 index=self.target_name,
                 name=self.index_name
             )
