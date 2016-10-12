@@ -48,15 +48,14 @@ class ESIndexableMixin(object):
         content_type = ContentType.objects.get_for_model(self)
         if async:
             result = es_index_object.apply_async(
-                (index_name, content_type.pk, self.pk),
-                countdown=countdown
+                args=(index_name, content_type.pk, self.pk),
+                countdown=countdown,
+                queue=trampoline_config.celery_queue
             )
         else:
-            result = es_index_object.apply((
-                index_name,
-                content_type.pk,
-                self.pk
-            ))
+            result = es_index_object.apply(
+                args=(index_name, content_type.pk, self.pk)
+            )
         return result
 
     def es_delete(self, async=True, index_name=None):
