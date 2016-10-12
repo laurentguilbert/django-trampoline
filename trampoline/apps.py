@@ -26,6 +26,7 @@ DEFAULT_TRAMPOLINE = {
     'OPTIONS': {
         'fail_silently': True,
         'disabled': False,
+        'celery_queue': None
     },
 }
 
@@ -140,6 +141,10 @@ class TrampolineConfig(AppConfig):
     @property
     def is_disabled(self):
         return self.settings['OPTIONS']['disabled']
+
+    @property
+    def celery_queue(self):
+        return self.settings['OPTIONS']['celery_queue']
 
 
 try:
