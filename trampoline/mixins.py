@@ -27,6 +27,10 @@ class ESIndexableMixin(object):
     def is_indexable(self):
         return True
 
+    def is_index_update_needed(self):
+        """ Allow models to decide whether to update index from post_save """
+        return True
+
     def get_es_doc_mapping(self):
         raise NotImplementedError
 
