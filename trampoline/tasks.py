@@ -19,13 +19,15 @@ def es_index_object(index_name, content_type_id, object_id):
     """
     Index objects based on the methods defined by EsIndexableMixin.
     """
+
     try:
         content_type = ContentType.objects.get_for_id(content_type_id)
-        obj = content_type.get_object_for_this_type(pk=object_id)
+        # I've used this method because django has some issues with CT and database routers
+        obj = content_type.model_class()._default_manager.get(pk=object_id)
         doc = obj.get_es_doc_mapping()
         doc.meta.id = obj.pk
         doc.save(index=index_name)
-    except:
+    except Exception as e:
         if trampoline_config.should_fail_silently:
             logger.exception(
                 "Exception occured while indexing object.",
@@ -37,17 +39,17 @@ def es_index_object(index_name, content_type_id, object_id):
             )
             return False
         else:
-            raise
+            raise e
     return True
 
 
 @shared_task
-def es_delete_doc(index_name, doc_type_name, doc_id):
+def es_delete_doc(index_name, doc_type_name, doc_id, using=None):
     """
     Delete a document from the index.
     """
     try:
-        trampoline_config.connection.delete(
+        trampoline_config.get_connection(using).delete(
             index=index_name,
             doc_type=doc_type_name,
             id=doc_id,

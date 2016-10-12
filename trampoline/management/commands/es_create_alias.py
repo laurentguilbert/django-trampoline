@@ -11,13 +11,15 @@ class Command(ESBaseCommand):
 
     option_list = ESBaseCommand.option_list + (
         ESBaseCommand.options['index_name'],
-        ESBaseCommand.options['target_name']
+        ESBaseCommand.options['target_name'],
+        ESBaseCommand.options['using']
     )
     required_options = ('index_name', 'target_name')
 
     def run(self, *args, **options):
+
         if not self.dry_run:
-            self.trampoline_config.connection.indices.put_alias(
+            self.trampoline_config.get_connection(self.using).indices.put_alias(
                 index=self.target_name,
                 name=self.index_name
             )
