@@ -18,7 +18,7 @@ class Command(ESBaseCommand):
 
     def run(self, *args, **options):
         using = self.using
-        
+
         if not self.dry_run:
             self.trampoline_config.get_connection(using).indices.put_alias(
                 index=self.target_name,

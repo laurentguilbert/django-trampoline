@@ -22,7 +22,7 @@ def es_index_object(index_name, content_type_id, object_id):
 
     try:
         content_type = ContentType.objects.get_for_id(content_type_id)
-        # I've used this method because django has some issues with CT and database routers
+        # django has some issues with CT and database routers, use model_class
         obj = content_type.model_class()._default_manager.get(pk=object_id)
         doc = obj.get_es_doc_mapping()
         doc.meta.id = obj.pk
