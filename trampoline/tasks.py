@@ -23,6 +23,9 @@ def es_index_object(index_name, content_type_id, object_id):
     try:
         content_type = ContentType.objects.get_for_id(content_type_id)
         obj = content_type.model_class()._default_manager.get(pk=object_id)
+        if not obj.is_indexable():
+            return
+
         doc = obj.get_es_doc_mapping()
         doc.meta.id = obj.pk
         doc.save(index=index_name)
