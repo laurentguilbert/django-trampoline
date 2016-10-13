@@ -103,7 +103,7 @@ def get_indexable_queryset(cls):
 
 Return the list of contents that should be indexed for this model using the command `es_create_documents()` defined bellow. Make sure you don't forget the `classmethod` decorator.
 
-### DocType
+## DocType
 
 Mapping between your models and documents can either be manual or automatic. The two strategies are mutually exclusive.
 
