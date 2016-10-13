@@ -83,9 +83,14 @@ class ESIndexableMixin(object):
                 queue=trampoline_config.celery_queue
             )
         else:
-            result = es_index_object.apply(
-                args=(index_name, content_type.pk, self.pk)
-            )
+            if trampoline_config.should_fail_silently:
+                # celery .apply method runs inline but fails silently
+                result = es_index_object.apply_async(
+                    args=(index_name, content_type.pk, self.pk)
+                )
+            else:
+                result = es_index_object.run(
+                    index_name, content_type.pk, self.pk)
         return result
 
     def es_delete(self, async=True, index_name=None):
