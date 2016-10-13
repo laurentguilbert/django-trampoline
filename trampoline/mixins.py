@@ -15,6 +15,7 @@ class ESIndexableMixin(object):
     Provide the required methods and attributes to index django models.
     """
     es_doc_type = None
+    es_auto_doc_type_mapping = False
 
     @classmethod
     def get_indexable_queryset(cls):  # pragma: no cover
@@ -32,7 +33,32 @@ class ESIndexableMixin(object):
         return True
 
     def get_es_doc_mapping(self):
+        if self.es_auto_doc_type_mapping is True:
+            return self.get_es_auto_doc_mapping()
         raise NotImplementedError
+
+    def get_es_auto_doc_mapping(self):
+        """ Automatically maps values fromn model to doc_type.
+            If a field from doc_type is not found on model,
+            the user must implement prepare_{field} method (on doc_type).
+        """
+        doc_type = self.es_doc_type()
+
+        for field in doc_type._doc_type.mapping:
+            prep_func = getattr(doc_type, 'prepare_{}'.format(field), None)
+            if prep_func is not None and callable(prep_func):
+                value = prep_func(self)
+            elif hasattr(self, field):
+                value = getattr(self, field, None)
+            else:
+                raise NotImplementedError(
+                    'Field {} not found on {} model, nor doc_type {} has no '
+                    '"prepare_{}" method implemented'.format(
+                        field, self.__class__, doc_type.__class__, field))
+
+            setattr(doc_type, field, value)
+
+        return doc_type
 
     def get_es_doc(self):
         if not self.pk:
