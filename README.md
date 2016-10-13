@@ -83,18 +83,6 @@ In order to make your model indexable you must make it inherit from `ESIndexable
 
 Set the attribute `es_doc_type` with the corresponding `DocType` used to serialize your model.
 
-#### get_es_doc_mapping (required)
-
-```python
-def get_es_doc_mapping(self):
-    doc_type = self.es_doc_type()
-    doc_type.foo = self.foo
-    doc_type.bar = self.bar
-    return doc_type
-```
-
-Return an instance of `es_doc_type` mapped with your current model instance.
-
 #### is_indexable (optional)
 
 ```python
@@ -113,6 +101,50 @@ def get_indexable_queryset(cls):
 ```
 
 Return the list of contents that should be indexed for this model using the command `es_create_documents()` defined bellow. Make sure you don't forget the `classmethod` decorator.
+
+### DocType
+
+Mapping between your models and documents can either be manual or automatic. The two strategies are mutually exclusive.
+
+#### Manual mapping (default)
+
+Implement the method `get_es_doc_mapping` on your model and manually create your mapping.
+
+```python
+# myapp/models.py
+
+class MyModel(models.Model):
+
+    def get_es_doc_mapping(self):
+        doc_type = self.es_doc_type()
+        doc_type.foo = self.foo
+        doc_type.bar = self.bar
+        return doc_type
+```
+
+Return an instance of `es_doc_type` mapped with your current model instance.
+
+#### Automatic mapping
+
+Set `es_auto_doc_type_mapping` to `True` inside your model to enable automatic mapping.
+
+This method will automatically copy values from your model to your doc type.
+
+You can also override this behavior on a field by field basis by implementing a method named `prepare_{field}`.
+
+```python
+# myapp/doc_types.py
+
+import elasticsearch_dsl
+
+class MyDocType(elasticsearch_dsl.DocType):
+    simple_field = elasticsearch_dsl.String()
+    computed_field = elasticsearch_dsl.String()
+
+    def prepare_computed_field(self, obj):
+        # obj being an instance of your model.
+        return obj.field1 + obj.field2
+```
 
 ## Management commands
 

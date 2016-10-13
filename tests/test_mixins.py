@@ -8,6 +8,7 @@ from elasticsearch_dsl import Index
 from trampoline.mixins import ESIndexableMixin
 
 from tests.base import BaseTestCase
+from tests.models import Person
 from tests.models import Token
 
 
@@ -38,10 +39,21 @@ class TestMixins(BaseTestCase):
         )
 
     def test_get_es_doc(self):
-        token = Token(name='token')
+        token = Token(name="token")
         self.assertIsNone(token.get_es_doc())
         token.save()
         self.assertIsNotNone(token.get_es_doc())
+
+    def test_auto_doc_type_mapping(self):
+        person = Person(first_name="Simion", last_name="Baws")
+        person.save()
+        doc_type = person.get_es_doc_mapping()
+        self.assertEqual(doc_type.first_name, person.first_name)
+        self.assertEqual(doc_type.last_name, person.last_name)
+        self.assertEqual(
+            doc_type.full_name,
+            u"{0} {1}".format(person.first_name, person.last_name)
+        )
 
     def test_es_index(self):
         # Asynchronous call.
