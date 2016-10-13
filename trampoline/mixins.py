@@ -85,7 +85,7 @@ class ESIndexableMixin(object):
                 result = es_index_object.apply(
                     args=(index_name, content_type.pk, self.pk)
                 )
-            else:
+            else:  # pragma: no cover
                 result = es_index_object.run(
                     index_name,
                     content_type.pk,
