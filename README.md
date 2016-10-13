@@ -34,17 +34,18 @@ TRAMPOLINE = {
         }
     },
     'OPTIONS': {
+        'celery_queue': None,
         'fail_silently': True,
         'disabled': False,
     },
 }
 ```
 
-### HOST
+### CONNECTIONS
 
-`localhost` by default.
+`localhost` is already set by default.
 
-Address of your ElasticSearch host.
+Mapping of the different ElasticSearch hosts used in your project.
 
 ### INDICES
 
@@ -53,6 +54,12 @@ Address of your ElasticSearch host.
 Each key inside `INDICES` represents an index which itself defines a list of `models` to be indexed.
 
 ### OPTIONS
+
+#### celery_queue
+
+`None` by default.
+
+Specify which Celery queue should handle your indexation tasks.
 
 #### fail_silently
 
