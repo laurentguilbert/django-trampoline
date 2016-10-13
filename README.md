@@ -126,7 +126,7 @@ Return an instance of `es_doc_type` mapped with your current model instance.
 
 #### Automatic mapping
 
-Set `es_auto_doc_type_mapping` to `True` inside your `DocType` to enable automatic mapping.
+Set `es_auto_doc_type_mapping` to `True` inside your model to enable automatic mapping.
 
 This method will automatically copy values from your model to your doc type.
 

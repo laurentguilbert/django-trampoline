@@ -24,4 +24,4 @@ class PersonDoc(DocType):
 
     @staticmethod
     def prepare_full_name(obj):
-        return '{} {}'.format(obj.first_name, obj.last_name)
+        return u"{0} {1}".format(obj.first_name, obj.last_name)
