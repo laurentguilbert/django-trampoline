@@ -31,6 +31,13 @@ class ESBaseCommand(BaseCommand):
             default=None,
             help="Name of the target index."
         ),
+        'using': make_option(
+            '--using',
+            '-u',
+            dest='using',
+            default='default',
+            help="Connection name."
+        ),
     }
 
     option_list = BaseCommand.option_list + (

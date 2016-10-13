@@ -21,7 +21,9 @@ except ImportError:
 
 
 DEFAULT_TRAMPOLINE = {
-    'HOST': 'localhost',
+    'CONNECTIONS': {
+        'default': {'hosts': 'localhost'},
+    },
     'INDICES': {},
     'OPTIONS': {
         'fail_silently': True,
@@ -42,7 +44,7 @@ def recursive_update(d, u):
 
 
 def post_save_es_index(sender, instance, **kwargs):
-    if instance.is_indexable():
+    if instance.is_indexable() and instance.is_index_update_needed():
         try:
             # post_save fires after the save occurs but before the transaction
             # is commited.
@@ -90,7 +92,13 @@ class TrampolineConfig(AppConfig):
         super(TrampolineConfig, self).__init__(*args, **kwargs)
 
     def ready(self):
-        connections.configure(default={'hosts': self.host})
+        if 'HOST' in self.settings:
+            raise NotImplementedError('"HOST" key replaced by "CONNECTIONS"')
+        options = {}
+        for alias, details in self.settings['CONNECTIONS'].items():
+            options[alias] = details
+
+        connections.configure(**options)
 
     def get_index_models(self, index_name):
         try:
@@ -122,9 +130,11 @@ class TrampolineConfig(AppConfig):
         TRAMPOLINE = deepcopy(DEFAULT_TRAMPOLINE)
         return recursive_update(TRAMPOLINE, USER_TRAMPOLINE)
 
-    @property
-    def connection(self):
-        return connections.get_connection()
+    def get_connection(self, alias='default'):
+        if not alias:
+            alias = 'default'
+        return connections.get_connection(alias)
+    connection = property(get_connection)
 
     @property
     def host(self):

@@ -22,18 +22,21 @@ Add `trampoline` to your `INSTALLED_APPS`.
 Define the setting:
 ```python
 TRAMPOLINE = {
-  'HOST': 'localhost',
-  'INDICES': {
-    'index_name': {
-      'models': (
-        'app_name.models.ModelName',
-      ),
-    }
-  },
-  'OPTIONS': {
-    'fail_silently': True,
-    'disabled': False,
-  },
+    'CONNECTIONS': {
+        'default': {'hosts': 'localhost:9200'},
+        # 'another_conn': {'hosts': 'localhost:9201'},
+    },
+    'INDICES': {
+        'index_name': {
+            'models': (
+                'app_name.models.ModelName',
+            ),
+        }
+    },
+    'OPTIONS': {
+        'fail_silently': True,
+        'disabled': False,
+    },
 }
 ```
 

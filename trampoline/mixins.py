@@ -27,6 +27,10 @@ class ESIndexableMixin(object):
     def is_indexable(self):
         return True
 
+    def is_index_update_needed(self):
+        """ Allow models to decide whether to update index from post_save """
+        return True
+
     def get_es_doc_mapping(self):
         raise NotImplementedError
 
@@ -65,8 +69,9 @@ class ESIndexableMixin(object):
         doc_type = self.get_es_doc_type()
         doc_type_name = doc_type._doc_type.name
         index_name = index_name or doc_type._doc_type.index
+        using = doc_type._doc_type.using
 
         if async:
-            es_delete_doc.delay(index_name, doc_type_name, self.pk)
+            es_delete_doc.delay(index_name, doc_type_name, self.pk, using)
         else:
-            es_delete_doc.apply((index_name, doc_type_name, self.pk))
+            es_delete_doc.apply((index_name, doc_type_name, self.pk, using))
