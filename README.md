@@ -83,14 +83,40 @@ In order to make your model indexable you must make it inherit from `ESIndexable
 
 Set the attribute `es_doc_type` with the corresponding `DocType` used to serialize your model.
 
-#### get_es_doc_mapping (required)
 
+Next, you must choose between automatic and manual doc type mapping.
+#### Doc Type Mapping methods (required, mutually exclusive)
+
+##### 1. Automatic: `es_auto_doc_type_mapping` property
+To enable automatic doc mapping, simply set  `es_auto_doc_type_mapping = True` property on your model. 
+That's all you need to do for automatic mapping to work.  
+This will automatically copy values from your model, to your doc type.  
+However, there's chance you need computed fields on your doctype. In this case, implement "prepare_{field}" methods on your **Doc Type**:
 ```python
-def get_es_doc_mapping(self):
-    doc_type = self.es_doc_type()
-    doc_type.foo = self.foo
-    doc_type.bar = self.bar
-    return doc_type
+# myapp/documents.py
+
+import elasticsearch_dsl
+
+class MyDocType(elasticsearch_dsl.DocType):
+    simple_field = elasticsearch_dsl.String()
+    computed_field = elasticsearch_dsl.String()
+    
+    def prepare_computed_field(self, obj):
+        """ obj is your model instance """
+        return obj.field1 + obj.field2
+
+```
+
+##### 2. Manual: `get_es_doc_mapping` method 
+This allows you to build the doc type manually. Implement this method on your model:
+```python
+class MyModel(models.Model): 
+    # ...
+    def get_es_doc_mapping(self):
+        doc_type = self.es_doc_type()
+        doc_type.foo = self.foo
+        doc_type.bar = self.bar
+        return doc_type
 ```
 
 Return an instance of `es_doc_type` mapped with your current model instance.
