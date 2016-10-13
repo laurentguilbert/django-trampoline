@@ -19,7 +19,7 @@ class PersonDoc(DocType):
     full_name = String(index='not_analyzed')
 
     class Meta:
-        index = 'people'
+        index = 'foobar'
         doc_type = 'person'
 
     @staticmethod

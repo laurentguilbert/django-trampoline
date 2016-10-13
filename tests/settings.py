@@ -43,6 +43,7 @@ TRAMPOLINE = {
                 'tests.models.Token',
                 # Make sure only one doc_type is created.
                 'tests.models.Token',
+                'tests.models.Person',
             ]
         },
     },
