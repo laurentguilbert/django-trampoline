@@ -45,7 +45,9 @@ class TestMixins(BaseTestCase):
 
     def test_auto_doc_type_mapping(self):
         person = Person(first_name='Simion', last_name='Baws')
-        self.assertIsNotNone(person.get_es_doc())
+        person.save()
+        doc_type = person.get_es_doc_mapping()
+        self.assertEqual(doc_type.full_name, 'Simion Baws')
 
     def test_es_index(self):
         # Asynchronous call.
