@@ -40,13 +40,16 @@ class Command(ESBaseCommand):
             )
             sys.exit(1)
 
+        processed_doc_types = []
         for model in models:
             doc_type = model.get_es_doc_type()
-            index.doc_type(doc_type)
-            self.print_normal(
-                u"{0}Add mapping{1} {2}"
-                .format(self.GREEN, self.RESET, doc_type._doc_type.name)
-            )
+            if doc_type not in processed_doc_types:
+                index.doc_type(doc_type)
+                processed_doc_types.append(doc_type)
+                self.print_normal(
+                    u"{0}Add mapping{1} {2}"
+                    .format(self.GREEN, self.RESET, doc_type._doc_type.name)
+                )
         if not self.dry_run:
             index.create()
 

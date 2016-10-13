@@ -15,6 +15,21 @@ INSTALLED_APPS = (
     'tests',
 )
 
+LOGGING = {
+    'version': 1,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        'trampoline.tasks': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+        },
+    }
+}
+
 SECRET_KEY = 'secret-key'
 
 ##################################################
@@ -24,9 +39,18 @@ SECRET_KEY = 'secret-key'
 TRAMPOLINE = {
     'INDICES': {
         'foobar': {
-            'models': ('tests.models.Token',)
+            'models': [
+                'tests.models.Token',
+                # Make sure only one doc_type is created.
+                'tests.models.Token',
+                'tests.models.Person',
+            ]
         },
-    }
+    },
+    'OPTIONS': {
+        'disabled': False,
+        'fail_silently': True,
+    },
 }
 
 ##################################################

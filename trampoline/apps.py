@@ -19,11 +19,16 @@ try:
 except ImportError:
     AppConfig = object
 
+
 DEFAULT_TRAMPOLINE = {
-    'HOST': 'localhost',
+    'CONNECTIONS': {
+        'default': {'hosts': 'localhost'},
+    },
     'INDICES': {},
     'OPTIONS': {
+        'fail_silently': True,
         'disabled': False,
+        'celery_queue': None
     },
 }
 
@@ -39,7 +44,7 @@ def recursive_update(d, u):
 
 
 def post_save_es_index(sender, instance, **kwargs):
-    if instance.is_indexable():
+    if instance.is_indexable() and instance.is_index_update_needed():
         try:
             # post_save fires after the save occurs but before the transaction
             # is commited.
@@ -54,15 +59,28 @@ def post_delete_es_delete(sender, instance, **kwargs):
 
 
 def class_prepared_check_indexable(sender, **kwargs):
-    try:
-        # Apps unrelated to trampoline might be loaded first.
-        from trampoline.mixins import ESIndexableMixin
-    except ImportError:
-        pass
-    else:
-        if issubclass(sender, ESIndexableMixin):
-            post_save.connect(post_save_es_index, sender=sender)
-            post_delete.connect(post_delete_es_delete, sender=sender)
+    trampoline_config = get_trampoline_config()
+
+    # Only register indexation signals for models defined in the settings.
+    sender_path = u"{0}.{1}".format(sender.__module__, sender.__name__)
+    if sender_path not in trampoline_config.model_paths:
+        return
+
+    post_save.connect(
+        post_save_es_index,
+        sender=sender,
+        weak=False,
+        dispatch_uid='trampoline_post_save_{0}'.format(sender.__name__)
+    )
+    post_delete.connect(
+        post_delete_es_delete,
+        sender=sender,
+        weak=False,
+        dispatch_uid=(
+            'trampoline_post_delete_{0}'
+            .format(sender.__name__)
+        )
+    )
 
 
 class TrampolineConfig(AppConfig):
@@ -74,7 +92,13 @@ class TrampolineConfig(AppConfig):
         super(TrampolineConfig, self).__init__(*args, **kwargs)
 
     def ready(self):
-        connections.configure(default={'hosts': self.host})
+        if 'HOST' in self.settings:
+            raise NotImplementedError('"HOST" key replaced by "CONNECTIONS"')
+        options = {}
+        for alias, details in self.settings['CONNECTIONS'].items():
+            options[alias] = details
+
+        connections.configure(**options)
 
     def get_index_models(self, index_name):
         try:
@@ -91,14 +115,26 @@ class TrampolineConfig(AppConfig):
         return models
 
     @property
+    def model_paths(self):
+        model_paths = []
+        for index_name in self.indices:
+            try:
+                model_paths += self.indices[index_name]['models']
+            except KeyError:
+                pass
+        return model_paths
+
+    @property
     def settings(self):
         USER_TRAMPOLINE = getattr(settings, 'TRAMPOLINE', {})
         TRAMPOLINE = deepcopy(DEFAULT_TRAMPOLINE)
         return recursive_update(TRAMPOLINE, USER_TRAMPOLINE)
 
-    @property
-    def connection(self):
-        return connections.get_connection()
+    def get_connection(self, alias='default'):
+        if not alias:
+            alias = 'default'
+        return connections.get_connection(alias)
+    connection = property(get_connection)
 
     @property
     def host(self):
@@ -109,5 +145,28 @@ class TrampolineConfig(AppConfig):
         return self.settings['INDICES']
 
     @property
+    def should_fail_silently(self):
+        return self.settings['OPTIONS']['fail_silently']
+
+    @property
     def is_disabled(self):
         return self.settings['OPTIONS']['disabled']
+
+    @property
+    def celery_queue(self):
+        return self.settings['OPTIONS']['celery_queue']
+
+
+try:
+    # Try to import AppConfig to check if this feature is available.
+    from django.apps import AppConfig  # noqa
+
+    def get_trampoline_config():
+        from django.apps import apps
+        return apps.get_app_config('trampoline')
+except ImportError:
+    app_config = TrampolineConfig()
+    app_config.ready()
+
+    def get_trampoline_config():
+        return app_config
