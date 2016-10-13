@@ -29,7 +29,6 @@ class ESIndexableMixin(object):
         return True
 
     def is_index_update_needed(self):
-        """ Allow models to decide whether to update index from post_save """
         return True
 
     def get_es_doc_mapping(self):
@@ -38,26 +37,25 @@ class ESIndexableMixin(object):
         raise NotImplementedError
 
     def get_es_auto_doc_mapping(self):
-        """ Automatically maps values fromn model to doc_type.
-            If a field from doc_type is not found on model,
-            the user must implement prepare_{field} method (on doc_type).
+        """
+        Automatically map values from the model to the doc_type.
+        If a field is not present on the model, a method "prepare_{field}"
+        must be implemented on the doc_type.
         """
         doc_type = self.es_doc_type()
-
         for field in doc_type._doc_type.mapping:
-            prep_func = getattr(doc_type, 'prepare_{}'.format(field), None)
+            prep_func = getattr(doc_type, 'prepare_{0}'.format(field), None)
             if prep_func is not None and callable(prep_func):
                 value = prep_func(self)
             elif hasattr(self, field):
                 value = getattr(self, field, None)
             else:
                 raise NotImplementedError(
-                    'Field {} not found on {} model, nor doc_type {} has no '
-                    '"prepare_{}" method implemented'.format(
-                        field, self.__class__, doc_type.__class__, field))
-
+                    u"Field {0} is not on {1} and {2} doesn't implement a "
+                    "\"prepare_{3}\" method."
+                    .format(field, self.__class__, doc_type.__class__, field)
+                )
             setattr(doc_type, field, value)
-
         return doc_type
 
     def get_es_doc(self):
@@ -84,13 +82,15 @@ class ESIndexableMixin(object):
             )
         else:
             if trampoline_config.should_fail_silently:
-                # celery .apply method runs inline but fails silently
-                result = es_index_object.apply_async(
+                result = es_index_object.apply(
                     args=(index_name, content_type.pk, self.pk)
                 )
             else:
                 result = es_index_object.run(
-                    index_name, content_type.pk, self.pk)
+                    index_name,
+                    content_type.pk,
+                    self.pk
+                )
         return result
 
     def es_delete(self, async=True, index_name=None):
