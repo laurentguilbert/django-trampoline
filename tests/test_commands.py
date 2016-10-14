@@ -262,9 +262,9 @@ class TestCommands(BaseTestCase):
         self.refresh()
 
         Token.objects.bulk_create([
-            Token.objects.create(name="token1"),
-            Token.objects.create(name="token2"),
-            Token.objects.create(name="token3"),
+            Token(name="token1"),
+            Token(name="token2"),
+            Token(name="token3"),
         ])
 
         # Dry run.
