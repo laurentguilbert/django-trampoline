@@ -283,11 +283,9 @@ class TestCommands(BaseTestCase):
         self.assertDocExists(token2)
         self.assertDocExists(token3)
 
-        Token.objects.filter(name='token1').delete()
-        # now we have an object in ES that's missing from db
-        # rebuild should delete it from ES
+        Token.objects.all().delete()
         call_command(
             'es_rebuild_index',
             index_name='foobar',
         )
-        self.assertDocDoesntExist(token1)
+        self.assertEqual(Token.get_es_doc_type().search().count(), 0)
