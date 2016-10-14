@@ -261,9 +261,11 @@ class TestCommands(BaseTestCase):
         index.create()
         self.refresh()
 
-        token1 = Token.objects.create(name="token1")
-        token2 = Token.objects.create(name="token2")
-        token3 = Token.objects.create(name="token2")
+        Token.objects.bulk_create(
+            Token.objects.create(name="token1"),
+            Token.objects.create(name="token2"),
+            Token.objects.create(name="token3"),
+        )
 
         # Dry run.
         call_command(
@@ -271,17 +273,13 @@ class TestCommands(BaseTestCase):
             index_name='foobar',
             dry_run=True
         )
-        self.assertDocDoesntExist(token1)
-        self.assertDocDoesntExist(token2)
-        self.assertDocDoesntExist(token3)
+        self.assertEqual(Token.get_es_doc_type().search().count(), 0)
 
         call_command(
             'es_rebuild_index',
             index_name='foobar',
         )
-        self.assertDocExists(token1)
-        self.assertDocExists(token2)
-        self.assertDocExists(token3)
+        self.assertEqual(Token.get_es_doc_type().search().count(), 3)
 
         Token.objects.all().delete()
         call_command(
