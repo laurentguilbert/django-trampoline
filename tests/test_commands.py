@@ -235,3 +235,59 @@ class TestCommands(BaseTestCase):
         self.assertDocExists(token)
         self.assertDocDoesntExist(token_not_indexable)
         self.assertDocDoesntExist(token_raise_exception)
+
+    def test_es_rebuild_index(self):
+        # Index name required.
+        with self.assertRaises(SystemExit):
+            call_command('es_rebuild_index')
+
+        # index_name not in settings.
+        with self.assertRaises(SystemExit):
+            call_command(
+                'es_rebuild_index',
+                index_name='barfoo'
+            )
+
+        # Index doesn't exist.
+        with self.assertRaises(SystemExit):
+            call_command(
+                'es_rebuild_index',
+                index_name='foobar'
+            )
+
+        index = Index('foobar')
+        doc_type = Token.get_es_doc_type()
+        index.doc_type(doc_type)
+        index.create()
+        self.refresh()
+
+        token1 = Token.objects.create(name="token1")
+        token2 = Token.objects.create(name="token2")
+        token3 = Token.objects.create(name="token2")
+
+        # Dry run.
+        call_command(
+            'es_rebuild_index',
+            index_name='foobar',
+            dry_run=True
+        )
+        self.assertDocDoesntExist(token1)
+        self.assertDocDoesntExist(token2)
+        self.assertDocDoesntExist(token3)
+
+        call_command(
+            'es_rebuild_index',
+            index_name='foobar',
+        )
+        self.assertDocExists(token1)
+        self.assertDocExists(token2)
+        self.assertDocExists(token3)
+
+        Token.objects.filter(name='token1').delete()
+        # now we have an object in ES that's missing from db
+        # rebuild should delete it from ES
+        call_command(
+            'es_rebuild_index',
+            index_name='foobar',
+        )
+        self.assertDocDoesntExist(token1)
