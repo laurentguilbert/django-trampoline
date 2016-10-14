@@ -261,11 +261,11 @@ class TestCommands(BaseTestCase):
         index.create()
         self.refresh()
 
-        Token.objects.bulk_create(
+        Token.objects.bulk_create([
             Token.objects.create(name="token1"),
             Token.objects.create(name="token2"),
             Token.objects.create(name="token3"),
-        )
+        ])
 
         # Dry run.
         call_command(
