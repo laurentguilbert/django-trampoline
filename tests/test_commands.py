@@ -7,7 +7,7 @@ from django.core.management import call_command
 from elasticsearch_dsl import Index
 
 from tests.base import BaseTestCase
-from tests.models import Token
+from tests.models import Token, Person
 from trampoline import get_trampoline_config
 
 trampoline_config = get_trampoline_config()
@@ -256,34 +256,56 @@ class TestCommands(BaseTestCase):
             )
 
         index = Index('foobar')
-        doc_type = Token.get_es_doc_type()
+
+        doc_type = Person.get_es_doc_type()
         index.doc_type(doc_type)
         index.create()
         self.refresh()
 
-        Token.objects.bulk_create([
-            Token(name="token1"),
-            Token(name="token2"),
-            Token(name="token3"),
+        # create without signals, ES will not have data
+        Person.objects.bulk_create([
+            Person(first_name="Simion"),
+            Person(first_name="Baws"),
+            Person(first_name="Sz"),
         ])
-
         # Dry run.
         call_command(
             'es_rebuild_index',
             index_name='foobar',
+            verbosity=0,
             dry_run=True
         )
-        self.assertEqual(Token.get_es_doc_type().search().count(), 0)
+        # check ES does not have data, as intended
+        self.assertEqual(Person.get_es_doc_type().search().count(), 0)
 
+        # rebuild index
         call_command(
             'es_rebuild_index',
             index_name='foobar',
+            verbosity=0,
+            async=False,
         )
-        self.assertEqual(Token.get_es_doc_type().search().count(), 3)
+        self.refresh()
+        # check if ES was synced
+        self.assertEqual(Person.get_es_doc_type().search().count(), 3)
 
-        Token.objects.all().delete()
+        # delete without triggering signals (ES will remain inconsistent)
+        settings.TRAMPOLINE['OPTIONS']['disabled'] = True
+        Person.objects.last().delete()
+        settings.TRAMPOLINE['OPTIONS']['disabled'] = False
+
+        # check if data is really inconsistent
+        self.assertEqual(Person.get_es_doc_type().search().count(), 3)
+        self.assertEqual(Person.objects.count(), 2)
+
+        # rebuild index
         call_command(
             'es_rebuild_index',
             index_name='foobar',
+            verbosity=0,
+            async=True,
         )
-        self.assertEqual(Token.get_es_doc_type().search().count(), 0)
+        self.refresh()
+
+        # check missing data from DB was also deleted from ES
+        self.assertEqual(Person.get_es_doc_type().search().count(), 2)

@@ -145,7 +145,7 @@ class ESBaseCommand(BaseCommand):
         return ProgressBar(loop_length)
 
 
-class ProgressBar:  # pragma: no cover
+class ProgressBar:
     """ Taken from random gist, can't recall which """
     def __init__(self, loop_length):
         import time
@@ -162,7 +162,7 @@ class ProgressBar:  # pragma: no cover
             self.curr_pct = int(self.curr_count)
             if self.curr_pct <= 100:
                 print(self.curr_pct, end=' ')
-            elif not self.overflow:
+            elif not self.overflow:  # pragma: no cover
                 self.overflow = True
 
     def finish(self):
@@ -170,9 +170,9 @@ class ProgressBar:  # pragma: no cover
             print("100", end=' ')
             elapsed = time.time() - self.start
             print('\nElapsed time: {:0.1f} seconds.\n'.format(elapsed))
-        elif self.overflow:
+        elif self.overflow:  # pragma: no cover
             print('Elapsed time after end of loop: '
                   '{:0.1f} seconds.\n'.format(time.time() - self.start))
-        else:
+        else:  # pragma: no cover
             print('\n* End of loop reached earlier than expected.\nElapsed '
                   'time: {:0.1f} seconds.\n'.format(time.time() - self.start))

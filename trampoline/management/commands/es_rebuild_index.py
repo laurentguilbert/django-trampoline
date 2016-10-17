@@ -63,26 +63,27 @@ class Command(ESBaseCommand):
                 if bad_ids:
                     self.print_info(u"Deleting {0} items".format(len(bad_ids)))
                     for es_id in bad_ids:
-                        model.es_doc_type.get(es_id).delete()
+                        model.es_doc_type.get(es_id).delete(ignore=404)
 
                 ct_id = ContentType.objects.get_for_model(model).pk
 
                 self.print_info(u"Reindexing {0} items".format(len(db_pks)))
 
-                pbar = self.init_progressbar(len(db_pks))
+                if db_pks:
+                    pbar = self.init_progressbar(len(db_pks))
 
-                for pk in db_pks:
-                    if options['async']:
-                        es_index_object.apply_async(
-                            args=(self.target_name, ct_id, pk),
-                            queue=self.trampoline_config.celery_queue)
-                    else:
-                        es_index_object.apply(
-                            args=(self.target_name, ct_id, pk))
-                    pbar.increment()
-                    sys.stdout.flush()
+                    for pk in db_pks:
+                        if options['async']:
+                            es_index_object.apply_async(
+                                args=(self.target_name, ct_id, pk),
+                                queue=self.trampoline_config.celery_queue)
+                        else:
+                            es_index_object.apply(
+                                args=(self.target_name, ct_id, pk))
+                        pbar.increment()
+                        sys.stdout.flush()
 
-                pbar.finish()
+                    pbar.finish()
             else:
                 self.print_info('ES Items to delete: {}'.format(len(bad_ids)))
                 self.print_info('Records to reindex: {}'.format(len(db_pks)))
