@@ -84,8 +84,7 @@ class Command(ESBaseCommand):
                         sys.stdout.flush()
 
                     pbar.finish()
+                    self.print_success("Indexation completed.")
             else:
                 self.print_info('ES Items to delete: {}'.format(len(bad_ids)))
                 self.print_info('Records to reindex: {}'.format(len(db_pks)))
-
-        self.print_success("Indexation completed.")

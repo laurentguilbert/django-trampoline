@@ -272,7 +272,7 @@ class TestCommands(BaseTestCase):
         call_command(
             'es_rebuild_index',
             index_name='foobar',
-            verbosity=0,
+            verbosity=3,
             dry_run=True
         )
         # check ES does not have data, as intended
@@ -282,7 +282,7 @@ class TestCommands(BaseTestCase):
         call_command(
             'es_rebuild_index',
             index_name='foobar',
-            verbosity=0,
+            verbosity=3,
             async=False,
         )
         self.refresh()
@@ -291,21 +291,22 @@ class TestCommands(BaseTestCase):
 
         # delete without triggering signals (ES will remain inconsistent)
         settings.TRAMPOLINE['OPTIONS']['disabled'] = True
-        Person.objects.last().delete()
+        Person.objects.all()[0].delete()
         settings.TRAMPOLINE['OPTIONS']['disabled'] = False
 
         # check if data is really inconsistent
+        self.refresh()
         self.assertEqual(Person.get_es_doc_type().search().count(), 3)
         self.assertEqual(Person.objects.count(), 2)
 
         # rebuild index
+        self.refresh()
         call_command(
             'es_rebuild_index',
             index_name='foobar',
-            verbosity=0,
+            verbosity=3,
             async=True,
         )
         self.refresh()
-
         # check missing data from DB was also deleted from ES
         self.assertEqual(Person.get_es_doc_type().search().count(), 2)
