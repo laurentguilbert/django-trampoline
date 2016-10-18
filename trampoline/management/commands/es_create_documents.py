@@ -50,7 +50,9 @@ class Command(ESBaseCommand):
             self.print_info(u"Processing model: '{0}'.".format(model.__name__))
             queryset = model.get_indexable_queryset()
             with stdout_redirect_to_tqdm() as save_stdout:
-                for obj in tqdm(queryset, file=save_stdout, dynamic_ncols=True):
+                for obj in tqdm(
+                    queryset, file=save_stdout, dynamic_ncols=True
+                ):
                     if obj.is_indexable():
                         if not self.dry_run:
                             result = obj.es_index(
