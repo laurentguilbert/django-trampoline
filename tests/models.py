@@ -37,7 +37,7 @@ class Person(ESIndexableMixin, models.Model):
     last_name = models.CharField(max_length=200)
 
     def __unicode__(self):
-        return self.name
+        return self.first_name
 
     es_doc_type = PersonDoc
     es_auto_doc_type_mapping = True

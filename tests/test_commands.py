@@ -7,7 +7,7 @@ from django.core.management import call_command
 from elasticsearch_dsl import Index
 
 from tests.base import BaseTestCase
-from tests.models import Token
+from tests.models import Token, Person
 from trampoline import get_trampoline_config
 
 trampoline_config = get_trampoline_config()
@@ -235,3 +235,78 @@ class TestCommands(BaseTestCase):
         self.assertDocExists(token)
         self.assertDocDoesntExist(token_not_indexable)
         self.assertDocDoesntExist(token_raise_exception)
+
+    def test_es_rebuild_index(self):
+        # Index name required.
+        with self.assertRaises(SystemExit):
+            call_command('es_rebuild_index')
+
+        # index_name not in settings.
+        with self.assertRaises(SystemExit):
+            call_command(
+                'es_rebuild_index',
+                index_name='barfoo'
+            )
+
+        # Index doesn't exist.
+        with self.assertRaises(SystemExit):
+            call_command(
+                'es_rebuild_index',
+                index_name='foobar'
+            )
+
+        index = Index('foobar')
+
+        doc_type = Person.get_es_doc_type()
+        index.doc_type(doc_type)
+        index.create()
+        self.refresh()
+
+        # create without signals, ES will not have data
+        Person.objects.bulk_create([
+            Person(first_name="Simion"),
+            Person(first_name="Baws"),
+            Person(first_name="Sz"),
+        ])
+        # Dry run.
+        call_command(
+            'es_rebuild_index',
+            index_name='foobar',
+            verbosity=3,
+            dry_run=True
+        )
+        # check ES does not have data, as intended
+        self.assertEqual(Person.get_es_doc_type().search().count(), 0)
+
+        # rebuild index
+        call_command(
+            'es_rebuild_index',
+            index_name='foobar',
+            verbosity=3,
+            async=False,
+        )
+        self.refresh()
+        # check if ES was synced
+        self.assertEqual(Person.get_es_doc_type().search().count(), 3)
+
+        # delete without triggering signals (ES will remain inconsistent)
+        settings.TRAMPOLINE['OPTIONS']['disabled'] = True
+        Person.objects.all()[0].delete()
+        settings.TRAMPOLINE['OPTIONS']['disabled'] = False
+
+        # check if data is really inconsistent
+        self.refresh()
+        self.assertEqual(Person.get_es_doc_type().search().count(), 3)
+        self.assertEqual(Person.objects.count(), 2)
+
+        # rebuild index
+        self.refresh()
+        call_command(
+            'es_rebuild_index',
+            index_name='foobar',
+            verbosity=3,
+            async=True,
+        )
+        self.refresh()
+        # check missing data from DB was also deleted from ES
+        self.assertEqual(Person.get_es_doc_type().search().count(), 2)
