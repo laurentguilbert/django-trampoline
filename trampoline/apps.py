@@ -111,7 +111,8 @@ class TrampolineConfig(AppConfig):
             module_path, model_name = model_path.rsplit('.', 1)
             module = __import__(module_path, fromlist=[''])
             model = getattr(module, model_name)
-            models.append(model)
+            if model not in models:
+                models.append(model)
         return models
 
     @property

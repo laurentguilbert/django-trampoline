@@ -4,9 +4,12 @@ Management command for trampoline.
 import logging
 import sys
 
+from tqdm import tqdm
+
 from elasticsearch_dsl import Index
 
 from trampoline.management.base import ESBaseCommand
+from trampoline.management.base import stdout_redirect_to_tqdm
 
 
 logger = logging.getLogger(__name__)
@@ -46,22 +49,25 @@ class Command(ESBaseCommand):
         for model in models:
             self.print_info(u"Processing model: '{0}'.".format(model.__name__))
             queryset = model.get_indexable_queryset()
-            for obj in queryset:
-                if obj.is_indexable():
-                    if not self.dry_run:
-                        result = obj.es_index(
-                            async=False,
-                            index_name=self.target_name
-                        )
-                        if result.result is False:
-                            status = self.STATUS_FAILED
+            with stdout_redirect_to_tqdm() as save_stdout:
+                for obj in tqdm(
+                    queryset, file=save_stdout, dynamic_ncols=True
+                ):
+                    if obj.is_indexable():
+                        if not self.dry_run:
+                            result = obj.es_index(
+                                async=False,
+                                index_name=self.target_name
+                            )
+                            if result.result is False:
+                                status = self.STATUS_FAILED
+                            else:
+                                status = self.STATUS_INDEXED
                         else:
                             status = self.STATUS_INDEXED
                     else:
-                        status = self.STATUS_INDEXED
-                else:
-                    status = self.STATUS_SKIPPED
-                self.print_obj_status(obj, model.__name__, status)
+                        status = self.STATUS_SKIPPED
+                    self.print_obj_status(obj, model.__name__, status)
 
         self.print_success("Indexation completed.")
 
@@ -78,7 +84,7 @@ class Command(ESBaseCommand):
                     self.RESET,
                     obj_str
                 ),
-                verbosity=2
+                verbosity=3
             )
         elif status == self.STATUS_INDEXED:
             self.print_normal(
@@ -89,5 +95,5 @@ class Command(ESBaseCommand):
                     self.RESET,
                     obj_str
                 ),
-                verbosity=2
+                verbosity=3
             )
