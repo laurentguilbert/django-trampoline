@@ -6,8 +6,9 @@ import sys
 
 from django.contrib.contenttypes.models import ContentType
 from elasticsearch_dsl import Index
+from tqdm import tqdm
 
-from trampoline.management.base import ESBaseCommand
+from trampoline.management.base import ESBaseCommand, stdout_redirect_to_tqdm
 from trampoline.tasks import es_index_object
 
 logger = logging.getLogger(__name__)
@@ -70,21 +71,20 @@ class Command(ESBaseCommand):
                 self.print_info(u"Reindexing {0} items".format(len(db_pks)))
 
                 if db_pks:
-                    pbar = self.init_progressbar(len(db_pks))
-
-                    for pk in db_pks:
-                        if options['async']:
-                            es_index_object.apply_async(
-                                args=(self.target_name, ct_id, pk),
-                                queue=self.trampoline_config.celery_queue)
-                        else:
-                            es_index_object.apply(
-                                args=(self.target_name, ct_id, pk))
-                        pbar.increment()
-                        sys.stdout.flush()
-
-                    pbar.finish()
-                    self.print_success("Indexation completed.")
+                    with stdout_redirect_to_tqdm() as save_stdout:
+                        for pk in tqdm(db_pks, file=save_stdout,
+                                       dynamic_ncols=True):
+                            if options['async']:
+                                es_index_object.apply_async(
+                                    args=(self.target_name, ct_id, pk),
+                                    queue=self.trampoline_config.celery_queue)
+                            else:
+                                es_index_object.apply(
+                                    args=(self.target_name, ct_id, pk))
+                    if options['async']:
+                        self.print_success("Indexation tasks added to queue.")
+                    else:
+                        self.print_success("Indexation completed.")
             else:
                 self.print_info('ES Items to delete: {}'.format(len(bad_ids)))
                 self.print_info('Records to reindex: {}'.format(len(db_pks)))

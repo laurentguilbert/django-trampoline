@@ -166,39 +166,3 @@ class ESBaseCommand(BaseCommand):
 
     def print_warning(self, message):  # pragma: no cover
         print(u"{0}{1}{2}".format(self.YELLOW, message, self.RESET))
-
-    def init_progressbar(self, loop_length):
-        return ProgressBar(loop_length)
-
-
-class ProgressBar:
-    """ Taken from random gist, can't recall which """
-    def __init__(self, loop_length):
-        import time
-        self.start = time.time()
-        self.increment_size = 100.0 / loop_length
-        self.curr_count = 0
-        self.curr_pct = 0
-        self.overflow = False
-        print('% complete: ', end='')
-
-    def increment(self):
-        self.curr_count += self.increment_size
-        if int(self.curr_count) > self.curr_pct:
-            self.curr_pct = int(self.curr_count)
-            if self.curr_pct <= 100:
-                print(self.curr_pct, end=' ')
-            elif not self.overflow:  # pragma: no cover
-                self.overflow = True
-
-    def finish(self):
-        if 99 <= self.curr_pct <= 100:
-            print("100", end=' ')
-            elapsed = time.time() - self.start
-            print('\nElapsed time: {:0.1f} seconds.\n'.format(elapsed))
-        elif self.overflow:  # pragma: no cover
-            print('Elapsed time after end of loop: '
-                  '{:0.1f} seconds.\n'.format(time.time() - self.start))
-        else:  # pragma: no cover
-            print('\n* End of loop reached earlier than expected.\nElapsed '
-                  'time: {:0.1f} seconds.\n'.format(time.time() - self.start))
