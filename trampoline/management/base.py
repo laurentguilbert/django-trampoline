@@ -10,7 +10,6 @@ import traceback
 from tqdm import tqdm
 
 import six
-import time
 
 from django.core.management.base import BaseCommand
 
