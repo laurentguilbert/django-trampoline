@@ -227,11 +227,37 @@ class TestCommands(BaseTestCase):
         self.assertDocDoesntExist(token_not_indexable)
         self.assertDocDoesntExist(token_raise_exception)
 
+        # Cleanup stale documents.
+        token_stale = Token.objects.create(name="stale")
+        token_stale_pk = token_stale.pk
+        settings.TRAMPOLINE['OPTIONS']['disabled'] = True
+        token_stale.delete()
+        settings.TRAMPOLINE['OPTIONS']['disabled'] = False
+        self.refresh()
+
+        self.assertTrue(self.docExists(token_stale, token_stale_pk))
         call_command(
             'es_create_documents',
             index_name='foobar',
-            verbosity=3
+            cleanup=True,
+            threads='foobar'  # Resort to backup default.
         )
+
+        self.assertFalse(self.docExists(token_stale, token_stale_pk))
         self.assertDocExists(token)
         self.assertDocDoesntExist(token_not_indexable)
         self.assertDocDoesntExist(token_raise_exception)
+
+        # Handle bad threads value.
+        call_command(
+            'es_create_documents',
+            index_name='foobar',
+            dry_run=True,
+            max_threads='foobar'
+        )
+        call_command(
+            'es_create_documents',
+            index_name='foobar',
+            dry_run=True,
+            max_threads=-42
+        )

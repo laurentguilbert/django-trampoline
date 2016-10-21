@@ -4,10 +4,11 @@
 bin/
 cover/
 develop-eggs/
+dist/
 django_trampoline.egg-info/
 eggs/
 logs/
 node_modules/
 nose_trampoline.egg-info/
 parts/
-dist/
+trampoline.log

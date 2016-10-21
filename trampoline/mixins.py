@@ -67,7 +67,7 @@ class ESIndexableMixin(object):
         return doc
 
     def es_index(self, async=True, countdown=0, index_name=None):
-        if trampoline_config.is_disabled:
+        if trampoline_config.is_disabled or not self.is_indexable():
             return
 
         doc_type = self.get_es_doc_type()
@@ -85,7 +85,7 @@ class ESIndexableMixin(object):
                 result = es_index_object.apply(
                     args=(index_name, content_type.pk, self.pk)
                 )
-            else:  # pragma: no cover
+            else:
                 result = es_index_object.run(
                     index_name,
                     content_type.pk,

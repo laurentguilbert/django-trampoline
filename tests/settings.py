@@ -5,7 +5,10 @@ Test settings for trampoline.
 DATABASES = {
     'default': {
         'NAME': 'trampoline.db',
-        'ENGINE': 'django.db.backends.sqlite3'
+        'ENGINE': 'django.db.backends.sqlite3',
+        'TEST': {
+            'NAME': 'trampoline.db',
+        },
     }
 }
 
