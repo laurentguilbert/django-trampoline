@@ -29,9 +29,6 @@ class TestMixins(BaseTestCase):
     def test_is_indexable(self):
         self.assertTrue(ESIndexableMixin().is_indexable())
 
-    def test_is_index_update_needed(self):
-        self.assertTrue(ESIndexableMixin().is_index_update_needed())
-
     def test_get_indexable_queryset(self):
         self.assertEqual(
             str(Token.get_indexable_queryset().query),

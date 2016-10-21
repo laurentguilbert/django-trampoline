@@ -44,7 +44,7 @@ def recursive_update(d, u):
 
 
 def post_save_es_index(sender, instance, **kwargs):
-    if instance.is_indexable() and instance.is_index_update_needed():
+    if instance.is_indexable():
         try:
             # post_save fires after the save occurs but before the transaction
             # is commited.

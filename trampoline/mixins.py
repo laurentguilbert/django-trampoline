@@ -28,9 +28,6 @@ class ESIndexableMixin(object):
     def is_indexable(self):
         return True
 
-    def is_index_update_needed(self):
-        return True
-
     def get_es_doc_mapping(self):
         if self.es_auto_doc_type_mapping is True:
             return self.get_es_auto_doc_mapping()
