@@ -66,7 +66,7 @@ class ESIndexableMixin(object):
         doc = doc_type.get(index=index_name, id=self.pk, ignore=404)
         return doc
 
-    def es_index(self, async=True, countdown=0, index_name=None):
+    def es_index(self, async=True, countdown=0, index_name=None, queue=None):
         if trampoline_config.is_disabled:
             return
 
@@ -78,7 +78,7 @@ class ESIndexableMixin(object):
             result = es_index_object.apply_async(
                 args=(index_name, content_type.pk, self.pk),
                 countdown=countdown,
-                queue=trampoline_config.celery_queue
+                queue=queue or trampoline_config.celery_queue
             )
         else:
             if trampoline_config.should_fail_silently:
@@ -93,7 +93,7 @@ class ESIndexableMixin(object):
                 )
         return result
 
-    def es_delete(self, async=True, index_name=None):
+    def es_delete(self, async=True, index_name=None, queue=None):
         if trampoline_config.is_disabled:
             return
 
@@ -103,6 +103,9 @@ class ESIndexableMixin(object):
         using = doc_type._doc_type.using
 
         if async:
-            es_delete_doc.delay(index_name, doc_type_name, self.pk, using)
+            es_delete_doc.apply_async(
+                args=(index_name, doc_type_name, self.pk, using),
+                queue=queue or trampoline_config.celery_queue
+            )
         else:
             es_delete_doc.apply((index_name, doc_type_name, self.pk, using))
