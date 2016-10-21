@@ -93,8 +93,6 @@ class TestMixins(BaseTestCase):
             token.es_index(async=False)
         settings.TRAMPOLINE['OPTIONS']['fail_silently'] = True
 
-
-
     def test_es_delete(self):
         # Asynchronous call.
         token = Token.objects.create(name='token')
