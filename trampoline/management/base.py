@@ -38,13 +38,6 @@ class ESBaseCommand(BaseCommand):
             default='default',
             help="Connection name."
         ),
-        'async': make_option(
-            '--async',
-            dest='async',
-            action='store_true',
-            default=False,
-            help="Asyncronous indexing."
-        ),
     }
 
     option_list = BaseCommand.option_list + (
