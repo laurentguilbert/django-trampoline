@@ -196,6 +196,8 @@ Create documents based on the method `get_indexable_queryset()` on the related m
 Arguments:
 - **--index**: Name of the index as defined in the settings.
 - **--target** *(optional)*: Name of the actual index.
+- **--threads** *(optional)*: Number of threads to be used, defaults to 4.
+- **--cleanup** *(optional)*: Delete stale documents from the index.
 
 **target** defaults to **index** if not provided.
 

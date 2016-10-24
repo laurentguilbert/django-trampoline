@@ -3,40 +3,14 @@ Base management command for trampoline.
 """
 from __future__ import print_function
 from optparse import make_option
-import contextlib
 import sys
 import traceback
-
-from tqdm import tqdm
 
 import six
 
 from django.core.management.base import BaseCommand
 
 from trampoline import get_trampoline_config
-
-
-class DummyTqdmFile(object):
-    file = None
-
-    def __init__(self, file):
-        self.file = file
-
-    def write(self, x):
-        if len(x.rstrip()) > 0:
-            tqdm.write(x, file=self.file)
-
-
-@contextlib.contextmanager
-def stdout_redirect_to_tqdm():
-    save_stdout = sys.stdout
-    try:
-        sys.stdout = DummyTqdmFile(sys.stdout)
-        yield save_stdout
-    except Exception as exc:  # pragma: no cover
-        raise exc
-    finally:
-        sys.stdout = save_stdout
 
 
 class ESBaseCommand(BaseCommand):
@@ -122,6 +96,7 @@ class ESBaseCommand(BaseCommand):
     RED = '\033[91m'
     DIM = '\033[2m'
     BOLD = '\033[1m'
+    PURPLE = '\033[35m'
     UNDERLINE = '\033[4m'
     RESET = '\033[0m'
 

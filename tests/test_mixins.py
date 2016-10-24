@@ -29,9 +29,6 @@ class TestMixins(BaseTestCase):
     def test_is_indexable(self):
         self.assertTrue(ESIndexableMixin().is_indexable())
 
-    def test_is_index_update_needed(self):
-        self.assertTrue(ESIndexableMixin().is_index_update_needed())
-
     def test_get_indexable_queryset(self):
         self.assertEqual(
             str(Token.get_indexable_queryset().query),
@@ -56,29 +53,41 @@ class TestMixins(BaseTestCase):
         )
 
     def test_es_index(self):
-        # Asynchronous call.
-        token = Token.objects.create(name='not_indexable')
+        settings.TRAMPOLINE['OPTIONS']['disabled'] = True
+        token = Token.objects.create(name='token')
+        settings.TRAMPOLINE['OPTIONS']['disabled'] = False
         self.assertDocDoesntExist(token)
+
+        # Async
         token.es_index()
         self.assertDocExists(token)
 
-        # Synchronous call.
-        token = Token.objects.create(name='not_indexable')
+        token.es_delete()
         self.assertDocDoesntExist(token)
-        token.es_index(async=False)
+
+        # Sync
+        token.es_index(async=True)
         self.assertDocExists(token)
 
-        # Fail silently.
+        token = Token.objects.create(name='not_indexable')
+        self.assertDocDoesntExist(token)
+
         settings.TRAMPOLINE['OPTIONS']['disabled'] = True
         token = Token.objects.create(name='raise_exception')
         settings.TRAMPOLINE['OPTIONS']['disabled'] = False
+        # Async silent fail.
         token.es_index()
+        # Sync silent fail.
+        token.es_index(async=False)
         self.assertDocDoesntExist(token)
 
-        # Hard fail.
         settings.TRAMPOLINE['OPTIONS']['fail_silently'] = False
+        # Async hard fail.
         with self.assertRaises(RuntimeError):
             token.es_index()
+        # Sync hard fail.
+        with self.assertRaises(RuntimeError):
+            token.es_index(async=False)
         settings.TRAMPOLINE['OPTIONS']['fail_silently'] = True
 
     def test_es_delete(self):

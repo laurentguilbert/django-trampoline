@@ -1,10 +1,21 @@
 """
 Setup for trampoline.
 """
+import sys
+
 from setuptools import find_packages
 from setuptools import setup
 
 exec(open('trampoline/version.py').read())
+
+install_requires = [
+    'celery',
+    'elasticsearch_dsl>=2.0.0,<3.0.0',
+    'tqdm',
+    'six',
+]
+if sys.version_info.major == 2:
+    install_requires.append('futures')
 
 setup(
     name='django-trampoline',
@@ -24,17 +35,10 @@ setup(
         'Operating System :: OS Independent',
         'Topic :: Software Development :: Libraries :: Python Modules',
     ),
-
     zip_safe=False,
     include_package_data=True,
     packages=find_packages(),
-    install_requires=(
-        'celery',
-        'elasticsearch_dsl>=2.0.0,<3.0.0',
-        'tqdm',
-        'six',
-    ),
-
+    install_requires=install_requires,
     entry_points={
         'nose.plugins': (
             'trampoline_setup = nose_plugins:TrampolineSetup',
