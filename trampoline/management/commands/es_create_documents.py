@@ -110,10 +110,10 @@ class Command(ESBaseCommand):
                     exc = result.get('exc')
                     if exc is not None:
                         print(
-                            "FAILED: pk {0} (content_type {1})\n"
+                            "FAILED: pk {0} (content_type {1})"
                             .format(
-                                result['content_type_id'],
                                 result['object_id'],
+                                result['content_type_id'],
                             ),
                             str(exc),
                             file=self.log_file
