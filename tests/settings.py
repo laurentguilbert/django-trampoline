@@ -9,6 +9,7 @@ DATABASES = {
         'TEST': {
             'NAME': 'trampoline.db',
         },
+        'TEST_NAME': 'trampoline.db',
     }
 }
 
